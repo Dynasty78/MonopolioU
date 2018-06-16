@@ -3,11 +3,22 @@ package envio;
 import java.io.Serializable;
 import java.util.Random;
 import monopolio.Jugador;
+import monopolio.Tablero;
 
 public class Paquete_enviar implements Serializable {
    Jugador jugador;
    int codigo;
    Random seed1, seed2;
+   
+   Tablero tablero;
+
+    public Tablero getTablero() {
+        return tablero;
+    }
+
+    public void setTablero(Tablero tablero) {
+        this.tablero = tablero;
+    }
 
     public Random getSeed1() {
         return seed1;

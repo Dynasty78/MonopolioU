@@ -13,17 +13,21 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import monopolio.Jugador;
+import monopolio.Tablero;
 
 public class Server extends javax.swing.JFrame implements Runnable{
     
     ArrayList<Jugador> jugadores = new ArrayList();
     int idJugador = 0;
     Jugador jugadorActual;
+    Tablero tablero;
 
     public Server() {
         initComponents();
         Thread mi_hilo = new Thread(this);
         mi_hilo.start();
+        tablero = new Tablero();
+        tablero.generarCasillas();
     }
 
     @SuppressWarnings("unchecked")
@@ -121,6 +125,7 @@ public class Server extends javax.swing.JFrame implements Runnable{
                     seedDados.setSeed1(rd);
                     seedDados.setSeed2(rd2);
                     seedDados.setCodigo(codigo);
+                    seedDados.setTablero(tablero);
                     
                     //Le envio los seeds a todos los clientes
                     for(String z:listaIP){
@@ -145,12 +150,14 @@ public class Server extends javax.swing.JFrame implements Runnable{
                     Jugador jugador = new Jugador(1500);
                     jugador.setId(idJugador);
                     jugador.setIp(ipremota);
+                    jugador.setPosicion(1);
                     if (idJugador == 1){
                         jugador.setTurno(true);
                     }
                     else{
                         jugador.setTurno(false);
                     }
+                    
                     
                     //Añadimos el juador a la lista de jugadores
                     jugadores.add(jugador);

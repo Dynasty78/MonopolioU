@@ -2,16 +2,43 @@
 package monopolio;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 
 public class Jugador implements Serializable{
     
     int id, dinero,posicion;
     boolean turno;
-    
+    String nombre;
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+    ArrayList<Propiedad> propiedades = new ArrayList();    
 
     public int getPosicion() {
         return posicion;
+    }
+
+    public Jugador(int id, int dinero, int posicion, boolean turno, String nombre) {
+        this.id = id;
+        this.dinero = dinero;
+        this.posicion = posicion;
+        this.turno = turno;
+        this.nombre = nombre;
+        
+    }
+
+    public ArrayList<Propiedad> getPropiedades() {
+        return propiedades;
+    }
+
+    public void setPropiedades(ArrayList<Propiedad> propiedades) {
+        this.propiedades = propiedades;
     }
 
     public void setPosicion(int posicion) {

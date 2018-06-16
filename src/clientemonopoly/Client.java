@@ -12,7 +12,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import monopolio.Jugador;
+import monopolio.*;
 import envio.Paquete_enviar;
 
 public class Client extends javax.swing.JFrame implements Runnable{
@@ -34,7 +34,7 @@ public class Client extends javax.swing.JFrame implements Runnable{
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        ficha = new javax.swing.JLabel();
+        imagenUsuario = new javax.swing.JLabel();
         imagenTablero = new javax.swing.JLabel();
         dados = new javax.swing.JButton();
         dado2 = new javax.swing.JLabel();
@@ -55,16 +55,16 @@ public class Client extends javax.swing.JFrame implements Runnable{
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        ficha.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/1_dot.png"))); // NOI18N
-        jPanel1.add(ficha, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 630, 60, 60));
+        imagenUsuario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/CarroP.png"))); // NOI18N
+        jPanel1.add(imagenUsuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 740, -1, 40));
 
-        imagenTablero.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/tablero.png"))); // NOI18N
+        imagenTablero.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/tablero2.png"))); // NOI18N
         imagenTablero.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
             public void mouseMoved(java.awt.event.MouseEvent evt) {
                 imagenTableroMouseMoved(evt);
             }
         });
-        jPanel1.add(imagenTablero, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, 704));
+        jPanel1.add(imagenTablero, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 800));
 
         dados.setText("Dados");
         dados.addActionListener(new java.awt.event.ActionListener() {
@@ -72,36 +72,36 @@ public class Client extends javax.swing.JFrame implements Runnable{
                 dadosActionPerformed(evt);
             }
         });
-        jPanel1.add(dados, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 670, -1, -1));
-        jPanel1.add(dado2, new org.netbeans.lib.awtextra.AbsoluteConstraints(840, 570, 65, 73));
-        jPanel1.add(dado1, new org.netbeans.lib.awtextra.AbsoluteConstraints(770, 570, 65, 73));
+        jPanel1.add(dados, new org.netbeans.lib.awtextra.AbsoluteConstraints(850, 770, -1, -1));
+        jPanel1.add(dado2, new org.netbeans.lib.awtextra.AbsoluteConstraints(850, 680, 65, 73));
+        jPanel1.add(dado1, new org.netbeans.lib.awtextra.AbsoluteConstraints(940, 680, 65, 73));
 
         PanelMensaje.setBackground(new java.awt.Color(255, 255, 255));
         PanelMensaje.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         mensaje.setFont(new java.awt.Font("Verdana", 1, 14)); // NOI18N
-        PanelMensaje.add(mensaje, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 40, 340, 40));
-        PanelMensaje.add(imagen, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 370, 120));
+        PanelMensaje.add(mensaje, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 40, 200, 40));
+        PanelMensaje.add(imagen, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 340, 120));
 
-        jPanel1.add(PanelMensaje, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 90, 370, 120));
+        jPanel1.add(PanelMensaje, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 90, 340, 120));
 
         usuario.setFont(new java.awt.Font("Verdana", 0, 18)); // NOI18N
         usuario.setText("Username");
-        jPanel1.add(usuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 0, -1, -1));
+        jPanel1.add(usuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(810, 0, -1, -1));
 
         turno.setFont(new java.awt.Font("Verdana", 0, 18)); // NOI18N
-        jPanel1.add(turno, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 40, 160, 20));
+        jPanel1.add(turno, new org.netbeans.lib.awtextra.AbsoluteConstraints(980, 30, 160, 20));
 
         dinero.setFont(new java.awt.Font("Verdana", 0, 18)); // NOI18N
-        jPanel1.add(dinero, new org.netbeans.lib.awtextra.AbsoluteConstraints(810, 0, 130, 20));
+        jPanel1.add(dinero, new org.netbeans.lib.awtextra.AbsoluteConstraints(1010, 0, 130, 20));
 
-        finalizarTurno.setText("finalizar");
+        finalizarTurno.setText("Finalizar");
         finalizarTurno.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 finalizarTurnoActionPerformed(evt);
             }
         });
-        jPanel1.add(finalizarTurno, new org.netbeans.lib.awtextra.AbsoluteConstraints(820, 670, -1, -1));
+        jPanel1.add(finalizarTurno, new org.netbeans.lib.awtextra.AbsoluteConstraints(940, 770, -1, -1));
 
         jLabel1.setBackground(new java.awt.Color(0, 255, 102));
         jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(770, 340, 50, 50));
@@ -112,9 +112,9 @@ public class Client extends javax.swing.JFrame implements Runnable{
                 MovimientoActionPerformed(evt);
             }
         });
-        jPanel1.add(Movimiento, new org.netbeans.lib.awtextra.AbsoluteConstraints(910, 670, -1, -1));
+        jPanel1.add(Movimiento, new org.netbeans.lib.awtextra.AbsoluteConstraints(1030, 770, -1, -1));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1070, 710));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1140, 800));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -218,10 +218,10 @@ public class Client extends javax.swing.JFrame implements Runnable{
     private javax.swing.JLabel dado2;
     private javax.swing.JButton dados;
     private javax.swing.JLabel dinero;
-    private javax.swing.JLabel ficha;
     private javax.swing.JButton finalizarTurno;
     private javax.swing.JLabel imagen;
     private javax.swing.JLabel imagenTablero;
+    private javax.swing.JLabel imagenUsuario;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel mensaje;
@@ -259,6 +259,32 @@ public class Client extends javax.swing.JFrame implements Runnable{
                     seed1 = paquete_recibido.getSeed1();
                     seed2 =paquete_recibido.getSeed2();
                     animacionDados(seed1,seed2);
+                    Jugador jugadorEnviado = paquete_recibido.getJugador();
+                    
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                        int nueva_posicion =jugadorlocal.getPosicion()+dice1+dice2;
+                        int x,y;
+                        
+                       Casilla casilla = paquete_recibido.getTablero().buscarCasilla(nueva_posicion);
+                       x = casilla.getPosicionx();
+                       y = casilla.getPosiciony();
+                       System.out.println("Aqui");
+                       System.out.println(x);
+                       System.out.println(y);
+                       System.out.println(dice1);
+                       System.out.println(dice2);
+                       System.out.println("Aqui2");
+                       
+                       imagenUsuario.setLocation(x, y);
+                       jugadorlocal.setPosicion(nueva_posicion);
+                        
+                        
+                    
+                    
                 } else if(codigo ==2){
                     jugadorlocal.setTurno(true);
                     new Thread(new MensajeUI(PanelMensaje,"Es tu turno! lanza los dados",4)).start();
