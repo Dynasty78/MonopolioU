@@ -9,6 +9,15 @@ public class Paquete_enviar implements Serializable {
    Jugador jugador;
    int codigo;
    Random seed1, seed2;
+   int cantidadJugadores;
+
+    public int getCantidadJugadores() {
+        return cantidadJugadores;
+    }
+
+    public void setCantidadJugadores(int cantidadJugadores) {
+        this.cantidadJugadores = cantidadJugadores;
+    }
    
    Tablero tablero;
 

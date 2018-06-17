@@ -18,6 +18,7 @@ import monopolio.Tablero;
 public class Server extends javax.swing.JFrame implements Runnable{
     
     ArrayList<Jugador> jugadores = new ArrayList();
+    ArrayList<String> listaIP = new ArrayList();
     int idJugador = 0;
     Jugador jugadorActual;
     Tablero tablero;
@@ -94,14 +95,31 @@ public class Server extends javax.swing.JFrame implements Runnable{
     private javax.swing.JTextArea areatexto;
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
-
+    public void enviarFichas(){
+        //Enviar fichas a todos los jugadores cada vez que se conecte uno nuevo.
+        Paquete_enviar fichas = new Paquete_enviar();
+        fichas.setCodigo(3);
+        fichas.setCantidadJugadores(jugadores.size());
+        
+        for(String z:listaIP){
+            try {
+                Socket enviar_destino = new Socket(z,9090);
+                ObjectOutputStream envio = new ObjectOutputStream(enviar_destino.getOutputStream());
+                envio.writeObject(fichas);
+                enviar_destino.close();
+                envio.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+         }
+    }
     @Override
     public void run() {
         try {
             ServerSocket server = new ServerSocket(9999);
             int codigo, origen;
             Paquete_enviar mi_paquete;
-            ArrayList<String> listaIP = new ArrayList();
+            
 
             while(true){
                 Socket mi_server = server.accept();
@@ -174,6 +192,8 @@ public class Server extends javax.swing.JFrame implements Runnable{
                     envio.close();
                      mi_server.close();
                      paquete_datos.close();
+                     enviarFichas();
+                     
                     
                 }
                 else if(codigo == 2){

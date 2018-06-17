@@ -14,18 +14,30 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import monopolio.*;
 import envio.Paquete_enviar;
+import java.util.ArrayList;
 
 public class Client extends javax.swing.JFrame implements Runnable{
     
      private static int count = 0;
      public int dice1 = 0, dice2 = 0;
      public Jugador jugadorlocal;
-
+     ArrayList<javax.swing.JLabel> fichas = new ArrayList();
     public Client() {
         initComponents();
         Thread mi_hilo = new Thread(this);
         mi_hilo.start();
+        
+        
+        fichaUsuario1.setVisible(false);
+        fichaUsuario2.setVisible(false);
+        fichaUsuario3.setVisible(false);
+        fichaUsuario4.setVisible(false);
+        fichas.add(fichaUsuario1);
+        fichas.add(fichaUsuario2);
+        fichas.add(fichaUsuario3);
+        fichas.add(fichaUsuario4);
         addWindowListener(new Online());
+        
         
     }
 
@@ -34,7 +46,10 @@ public class Client extends javax.swing.JFrame implements Runnable{
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        imagenUsuario = new javax.swing.JLabel();
+        fichaUsuario1 = new javax.swing.JLabel();
+        fichaUsuario2 = new javax.swing.JLabel();
+        fichaUsuario3 = new javax.swing.JLabel();
+        fichaUsuario4 = new javax.swing.JLabel();
         imagenTablero = new javax.swing.JLabel();
         dados = new javax.swing.JButton();
         dado2 = new javax.swing.JLabel();
@@ -53,18 +68,32 @@ public class Client extends javax.swing.JFrame implements Runnable{
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        jPanel1.setLayout(null);
 
-        imagenUsuario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/CarroP.png"))); // NOI18N
-        jPanel1.add(imagenUsuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 740, -1, 40));
+        fichaUsuario1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/CarroP.png"))); // NOI18N
+        jPanel1.add(fichaUsuario1);
+        fichaUsuario1.setBounds(640, 640, 45, 40);
 
-        imagenTablero.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/tablero2.png"))); // NOI18N
+        fichaUsuario2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/SombreroP.png"))); // NOI18N
+        jPanel1.add(fichaUsuario2);
+        fichaUsuario2.setBounds(640, 640, 50, 40);
+
+        fichaUsuario3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/PerroP.png"))); // NOI18N
+        jPanel1.add(fichaUsuario3);
+        fichaUsuario3.setBounds(640, 640, 50, 50);
+
+        fichaUsuario4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/DedalP.png"))); // NOI18N
+        jPanel1.add(fichaUsuario4);
+        fichaUsuario4.setBounds(640, 640, 50, 40);
+
+        imagenTablero.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/tablero.png"))); // NOI18N
         imagenTablero.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
             public void mouseMoved(java.awt.event.MouseEvent evt) {
                 imagenTableroMouseMoved(evt);
             }
         });
-        jPanel1.add(imagenTablero, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 800));
+        jPanel1.add(imagenTablero);
+        imagenTablero.setBounds(0, 0, 700, 700);
 
         dados.setText("Dados");
         dados.addActionListener(new java.awt.event.ActionListener() {
@@ -72,9 +101,12 @@ public class Client extends javax.swing.JFrame implements Runnable{
                 dadosActionPerformed(evt);
             }
         });
-        jPanel1.add(dados, new org.netbeans.lib.awtextra.AbsoluteConstraints(850, 770, -1, -1));
-        jPanel1.add(dado2, new org.netbeans.lib.awtextra.AbsoluteConstraints(850, 680, 65, 73));
-        jPanel1.add(dado1, new org.netbeans.lib.awtextra.AbsoluteConstraints(940, 680, 65, 73));
+        jPanel1.add(dados);
+        dados.setBounds(820, 640, 63, 23);
+        jPanel1.add(dado2);
+        dado2.setBounds(840, 540, 65, 73);
+        jPanel1.add(dado1);
+        dado1.setBounds(930, 540, 65, 73);
 
         PanelMensaje.setBackground(new java.awt.Color(255, 255, 255));
         PanelMensaje.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -83,17 +115,21 @@ public class Client extends javax.swing.JFrame implements Runnable{
         PanelMensaje.add(mensaje, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 40, 200, 40));
         PanelMensaje.add(imagen, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 340, 120));
 
-        jPanel1.add(PanelMensaje, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 90, 340, 120));
+        jPanel1.add(PanelMensaje);
+        PanelMensaje.setBounds(800, 90, 340, 120);
 
         usuario.setFont(new java.awt.Font("Verdana", 0, 18)); // NOI18N
         usuario.setText("Username");
-        jPanel1.add(usuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(810, 0, -1, -1));
+        jPanel1.add(usuario);
+        usuario.setBounds(810, 0, 92, 23);
 
         turno.setFont(new java.awt.Font("Verdana", 0, 18)); // NOI18N
-        jPanel1.add(turno, new org.netbeans.lib.awtextra.AbsoluteConstraints(980, 30, 160, 20));
+        jPanel1.add(turno);
+        turno.setBounds(980, 30, 160, 20);
 
         dinero.setFont(new java.awt.Font("Verdana", 0, 18)); // NOI18N
-        jPanel1.add(dinero, new org.netbeans.lib.awtextra.AbsoluteConstraints(1010, 0, 130, 20));
+        jPanel1.add(dinero);
+        dinero.setBounds(1010, 0, 130, 20);
 
         finalizarTurno.setText("Finalizar");
         finalizarTurno.addActionListener(new java.awt.event.ActionListener() {
@@ -101,10 +137,12 @@ public class Client extends javax.swing.JFrame implements Runnable{
                 finalizarTurnoActionPerformed(evt);
             }
         });
-        jPanel1.add(finalizarTurno, new org.netbeans.lib.awtextra.AbsoluteConstraints(940, 770, -1, -1));
+        jPanel1.add(finalizarTurno);
+        finalizarTurno.setBounds(920, 640, 71, 23);
 
         jLabel1.setBackground(new java.awt.Color(0, 255, 102));
-        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(770, 340, 50, 50));
+        jPanel1.add(jLabel1);
+        jLabel1.setBounds(770, 340, 50, 50);
 
         Movimiento.setText("Movimiento");
         Movimiento.addActionListener(new java.awt.event.ActionListener() {
@@ -112,9 +150,10 @@ public class Client extends javax.swing.JFrame implements Runnable{
                 MovimientoActionPerformed(evt);
             }
         });
-        jPanel1.add(Movimiento, new org.netbeans.lib.awtextra.AbsoluteConstraints(1030, 770, -1, -1));
+        jPanel1.add(Movimiento);
+        Movimiento.setBounds(1030, 770, 87, 23);
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1140, 800));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1140, 700));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -218,10 +257,13 @@ public class Client extends javax.swing.JFrame implements Runnable{
     private javax.swing.JLabel dado2;
     private javax.swing.JButton dados;
     private javax.swing.JLabel dinero;
+    private javax.swing.JLabel fichaUsuario1;
+    private javax.swing.JLabel fichaUsuario2;
+    private javax.swing.JLabel fichaUsuario3;
+    private javax.swing.JLabel fichaUsuario4;
     private javax.swing.JButton finalizarTurno;
     private javax.swing.JLabel imagen;
     private javax.swing.JLabel imagenTablero;
-    private javax.swing.JLabel imagenUsuario;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel mensaje;
@@ -236,6 +278,7 @@ public class Client extends javax.swing.JFrame implements Runnable{
             Socket cliente;
             Paquete_enviar paquete_recibido;
             int codigo;
+            
 
             while(true){
                 cliente = servidor_cliente.accept();
@@ -266,21 +309,22 @@ public class Client extends javax.swing.JFrame implements Runnable{
                     } catch (InterruptedException ex) {
                         Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                        int nueva_posicion =jugadorlocal.getPosicion()+dice1+dice2;
+                        int nueva_posicion =jugadorEnviado.getPosicion()+dice1+dice2;
+                        if(nueva_posicion > 40){
+                            nueva_posicion = nueva_posicion -40;
+                        }
                         int x,y;
                         
                        Casilla casilla = paquete_recibido.getTablero().buscarCasilla(nueva_posicion);
                        x = casilla.getPosicionx();
                        y = casilla.getPosiciony();
-                       System.out.println("Aqui");
-                       System.out.println(x);
-                       System.out.println(y);
-                       System.out.println(dice1);
-                       System.out.println(dice2);
-                       System.out.println("Aqui2");
                        
-                       imagenUsuario.setLocation(x, y);
-                       jugadorlocal.setPosicion(nueva_posicion);
+                       fichas.get(jugadorEnviado.getId()-1).setLocation(x, y);
+                      fichas.get(jugadorEnviado.getId()-1).setBounds(x, y,50,40);
+                      if(jugadorEnviado.getId()==jugadorlocal.getId()){
+                          jugadorlocal.setPosicion(nueva_posicion);
+                      }
+                       
                         
                         
                     
@@ -289,6 +333,12 @@ public class Client extends javax.swing.JFrame implements Runnable{
                     jugadorlocal.setTurno(true);
                     new Thread(new MensajeUI(PanelMensaje,"Es tu turno! lanza los dados",4)).start();
                     turno.setText("Tu turno");
+                }
+                else if(codigo == 3){
+                    int cantidad = paquete_recibido.getCantidadJugadores();
+                    for(int i = 0; i<cantidad; i++){
+                        fichas.get(i).setVisible(true);
+                    }
                 }
                 cliente.close();
                 paquete_datos.close();
