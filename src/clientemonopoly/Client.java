@@ -22,6 +22,8 @@ public class Client extends javax.swing.JFrame implements Runnable{
      public int dice1 = 0, dice2 = 0;
      public Jugador jugadorlocal;
      ArrayList<javax.swing.JLabel> fichas = new ArrayList();
+      int nueva_posicion;
+     boolean segundoDado;
     public Client() {
         initComponents();
         Thread mi_hilo = new Thread(this);
@@ -35,6 +37,7 @@ public class Client extends javax.swing.JFrame implements Runnable{
         fichas.add(fichaUsuario1);
         fichas.add(fichaUsuario2);
         fichas.add(fichaUsuario3);
+        segundoDado = false;
         fichas.add(fichaUsuario4);
         addWindowListener(new Online());
         
@@ -63,6 +66,10 @@ public class Client extends javax.swing.JFrame implements Runnable{
         finalizarTurno = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         Movimiento = new javax.swing.JButton();
+        propiedadPosicion = new javax.swing.JLabel();
+        compra = new javax.swing.JButton();
+        propiedad = new javax.swing.JComboBox<>();
+        jLabel2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -102,30 +109,32 @@ public class Client extends javax.swing.JFrame implements Runnable{
             }
         });
         jPanel1.add(dados);
-        dados.setBounds(820, 640, 63, 23);
+        dados.setBounds(790, 670, 80, 23);
         jPanel1.add(dado2);
-        dado2.setBounds(840, 540, 65, 73);
+        dado2.setBounds(860, 590, 65, 73);
         jPanel1.add(dado1);
-        dado1.setBounds(930, 540, 65, 73);
+        dado1.setBounds(940, 590, 65, 73);
 
         PanelMensaje.setBackground(new java.awt.Color(255, 255, 255));
-        PanelMensaje.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        PanelMensaje.setLayout(null);
 
         mensaje.setFont(new java.awt.Font("Verdana", 1, 14)); // NOI18N
-        PanelMensaje.add(mensaje, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 40, 200, 40));
-        PanelMensaje.add(imagen, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 340, 120));
+        PanelMensaje.add(mensaje);
+        mensaje.setBounds(20, 70, 380, 40);
+        PanelMensaje.add(imagen);
+        imagen.setBounds(0, 0, 440, 170);
 
         jPanel1.add(PanelMensaje);
-        PanelMensaje.setBounds(800, 90, 340, 120);
+        PanelMensaje.setBounds(700, 40, 440, 170);
 
         usuario.setFont(new java.awt.Font("Verdana", 0, 18)); // NOI18N
         usuario.setText("Username");
         jPanel1.add(usuario);
-        usuario.setBounds(810, 0, 92, 23);
+        usuario.setBounds(710, 0, 92, 23);
 
         turno.setFont(new java.awt.Font("Verdana", 0, 18)); // NOI18N
         jPanel1.add(turno);
-        turno.setBounds(980, 30, 160, 20);
+        turno.setBounds(840, 0, 160, 20);
 
         dinero.setFont(new java.awt.Font("Verdana", 0, 18)); // NOI18N
         jPanel1.add(dinero);
@@ -138,7 +147,7 @@ public class Client extends javax.swing.JFrame implements Runnable{
             }
         });
         jPanel1.add(finalizarTurno);
-        finalizarTurno.setBounds(920, 640, 71, 23);
+        finalizarTurno.setBounds(890, 670, 80, 23);
 
         jLabel1.setBackground(new java.awt.Color(0, 255, 102));
         jPanel1.add(jLabel1);
@@ -153,13 +162,37 @@ public class Client extends javax.swing.JFrame implements Runnable{
         jPanel1.add(Movimiento);
         Movimiento.setBounds(1030, 770, 87, 23);
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1140, 700));
+        propiedadPosicion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/solarium2.0.png"))); // NOI18N
+        jPanel1.add(propiedadPosicion);
+        propiedadPosicion.setBounds(800, 290, 250, 290);
+
+        compra.setText("Comprar");
+        compra.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                compraActionPerformed(evt);
+            }
+        });
+        jPanel1.add(compra);
+        compra.setBounds(990, 670, 73, 23);
+
+        propiedad.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { " " }));
+        jPanel1.add(propiedad);
+        propiedad.setBounds(800, 250, 250, 20);
+
+        jLabel2.setFont(new java.awt.Font("Bookman Old Style", 1, 14)); // NOI18N
+        jLabel2.setText("Propiedades");
+        jPanel1.add(jLabel2);
+        jLabel2.setBounds(800, 220, 90, 18);
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1140, 710));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void dadosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dadosActionPerformed
-      if(jugadorlocal.isTurno()){
+     //if(!segundoDado){
+        if(jugadorlocal.isTurno()){
+        segundoDado = true;
         try {
             Socket mi_socket = new Socket("192.168.0.105",9999);
             Paquete_enviar datos = new Paquete_enviar();
@@ -177,10 +210,14 @@ public class Client extends javax.swing.JFrame implements Runnable{
       else{
           new Thread(new MensajeUI(PanelMensaje,"Aun no es tu turno!",4)).start();
       }
+   /*  }else{
+         new Thread(new MensajeUI(PanelMensaje,"Ya lanzaste los dados",4)).start();
+     }*/
     }//GEN-LAST:event_dadosActionPerformed
 
     private void finalizarTurnoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_finalizarTurnoActionPerformed
       if(jugadorlocal.isTurno()){
+        segundoDado= false;  
         try {
             Socket mi_socket = new Socket("192.168.0.105",9999);
             Paquete_enviar datos = new Paquete_enviar();
@@ -203,15 +240,36 @@ public class Client extends javax.swing.JFrame implements Runnable{
     }//GEN-LAST:event_finalizarTurnoActionPerformed
 
     private void imagenTableroMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_imagenTableroMouseMoved
-        int x,y;
+        /*int x,y;
         x =evt.getX();
         y=evt.getY();
-        System.out.println("posicion: "+x+" "+y);
+        System.out.println("posicion: "+x+" "+y);*/
     }//GEN-LAST:event_imagenTableroMouseMoved
 
     private void MovimientoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MovimientoActionPerformed
  
     }//GEN-LAST:event_MovimientoActionPerformed
+
+    private void compraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_compraActionPerformed
+       if(jugadorlocal.isTurno()){ 
+        try {
+            Socket mi_socket = new Socket("192.168.0.105",9999);
+            Paquete_enviar datos = new Paquete_enviar();
+            datos.setJugador(jugadorlocal);
+            datos.setCodigo(4);
+            ObjectOutputStream paquete_datos = new ObjectOutputStream(mi_socket.getOutputStream());
+            paquete_datos.writeObject(datos);
+            mi_socket.close();
+            paquete_datos.close();
+
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+       }
+      else{
+          new Thread(new MensajeUI(PanelMensaje,"Aun no es tu turno!",4)).start();
+      }
+    }//GEN-LAST:event_compraActionPerformed
 
     /**
      * @param args the command line arguments
@@ -253,6 +311,7 @@ public class Client extends javax.swing.JFrame implements Runnable{
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton Movimiento;
     private javax.swing.JPanel PanelMensaje;
+    private javax.swing.JButton compra;
     private javax.swing.JLabel dado1;
     private javax.swing.JLabel dado2;
     private javax.swing.JButton dados;
@@ -265,8 +324,11 @@ public class Client extends javax.swing.JFrame implements Runnable{
     private javax.swing.JLabel imagen;
     private javax.swing.JLabel imagenTablero;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel mensaje;
+    private javax.swing.JComboBox<String> propiedad;
+    private javax.swing.JLabel propiedadPosicion;
     private javax.swing.JLabel turno;
     private javax.swing.JLabel usuario;
     // End of variables declaration//GEN-END:variables
@@ -309,26 +371,23 @@ public class Client extends javax.swing.JFrame implements Runnable{
                     } catch (InterruptedException ex) {
                         Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                        int nueva_posicion =jugadorEnviado.getPosicion()+dice1+dice2;
+                        nueva_posicion =jugadorEnviado.getPosicion()+dice1+dice2;
                         if(nueva_posicion > 40){
                             nueva_posicion = nueva_posicion -40;
                         }
-                        int x,y;
                         
-                       Casilla casilla = paquete_recibido.getTablero().buscarCasilla(nueva_posicion);
+                        animacionFicha(jugadorEnviado.getPosicion(), nueva_posicion,paquete_recibido.getTablero(),jugadorEnviado.getId());
+                        //int x,y;
+                        
+                       /*Casilla casilla = paquete_recibido.getTablero().buscarCasilla(nueva_posicion);
                        x = casilla.getPosicionx();
                        y = casilla.getPosiciony();
                        
                        fichas.get(jugadorEnviado.getId()-1).setLocation(x, y);
-                      fichas.get(jugadorEnviado.getId()-1).setBounds(x, y,50,40);
+                      fichas.get(jugadorEnviado.getId()-1).setBounds(x, y,50,40);*/
                       if(jugadorEnviado.getId()==jugadorlocal.getId()){
                           jugadorlocal.setPosicion(nueva_posicion);
                       }
-                       
-                        
-                        
-                    
-                    
                 } else if(codigo ==2){
                     jugadorlocal.setTurno(true);
                     new Thread(new MensajeUI(PanelMensaje,"Es tu turno! lanza los dados",4)).start();
@@ -340,6 +399,24 @@ public class Client extends javax.swing.JFrame implements Runnable{
                         fichas.get(i).setVisible(true);
                     }
                 }
+                else if(codigo ==4){
+                    Jugador jugadorEnviado = paquete_recibido.getJugador();
+                    Tablero tablero = paquete_recibido.getTablero();
+                    if(jugadorEnviado.getId() == jugadorlocal.getId()){
+                        jugadorlocal =jugadorEnviado;
+                        int posicion = jugadorlocal.getPosicion();
+                         
+                        if (paquete_recibido.isCompraExitosa()){
+                            Casilla casillaComprada =tablero.buscarCasilla(posicion);
+                            propiedad.addItem(casillaComprada.getNombre());
+                            new Thread(new MensajeUI(PanelMensaje,"Has comprado la propiedad "+casillaComprada.getNombre(),4)).start();
+                            dinero.setText("$: "+jugadorlocal.getDinero());
+                        }
+                        else{
+                             new Thread(new MensajeUI(PanelMensaje,"No puedes comprar",4)).start();
+                        }
+                    }
+                }
                 cliente.close();
                 paquete_datos.close();
             }
@@ -347,6 +424,50 @@ public class Client extends javax.swing.JFrame implements Runnable{
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void animacionFicha(int posicion, int nueva_posicion,Tablero tablero,int id){
+        int i;
+        int x;
+        int y;
+        if(posicion>nueva_posicion){
+            for(i = posicion +1; i<=40; i++){
+            Casilla casilla = tablero.buscarCasilla(i);
+                       x = casilla.getPosicionx();
+                       y = casilla.getPosiciony();
+                       fichas.get(id-1).setLocation(x, y);
+                       fichas.get(id-1).setBounds(x, y,50,40);
+                        try {
+                        Thread.sleep(400);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+            }
+            for(i = 1; i<=nueva_posicion; i++){
+            Casilla casilla = tablero.buscarCasilla(i);
+                       x = casilla.getPosicionx();
+                       y = casilla.getPosiciony();
+                       fichas.get(id-1).setLocation(x, y);
+                       fichas.get(id-1).setBounds(x, y,50,40);
+                        try {
+                        Thread.sleep(400);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+            }
+        }
+        for(i = posicion +1; i<=nueva_posicion; i++){
+            Casilla casilla = tablero.buscarCasilla(i);
+                       x = casilla.getPosicionx();
+                       y = casilla.getPosiciony();
+                       fichas.get(id-1).setLocation(x, y);
+                       fichas.get(id-1).setBounds(x, y,50,40);
+                        try {
+                        Thread.sleep(400);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                    }
         }
     }
     

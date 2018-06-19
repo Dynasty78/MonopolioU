@@ -12,7 +12,9 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import monopolio.Casilla;
 import monopolio.Jugador;
+import monopolio.Propiedad;
 import monopolio.Tablero;
 
 public class Server extends javax.swing.JFrame implements Runnable{
@@ -233,6 +235,48 @@ public class Server extends javax.swing.JFrame implements Runnable{
                         
                     }
                     
+                }else if(codigo == 4){
+                    int posicionJugador;
+                    jugadorActual = mi_paquete.getJugador();
+                    posicionJugador = jugadorActual.getPosicion();
+                    Casilla casillaJugador = tablero.buscarCasilla(posicionJugador);
+                    
+                    if(casillaJugador instanceof Propiedad){
+                       
+                        Propiedad propiedadAcomprar = (Propiedad) casillaJugador;
+                        if(jugadorActual.getDinero()>propiedadAcomprar.getCostoSolar() && !propiedadAcomprar.isDueño()){
+                            
+                         propiedadAcomprar.setPropietario(jugadorActual);
+                         propiedadAcomprar.setDueño(true);
+                         jugadorActual.getPropiedades().add(propiedadAcomprar);
+                         jugadorActual.setDinero(jugadorActual.getDinero()-propiedadAcomprar.getCostoSolar());
+                         
+                         String ip = jugadorActual.getIp();
+                         Socket enviar_destino = new Socket(ip,9090);
+                        Paquete_enviar compra = new Paquete_enviar();
+                        compra.setCodigo(4);
+                        compra.setJugador(jugadorActual);
+                        compra.setCompraExitosa(true);
+                        compra.setTablero(tablero);
+                        ObjectOutputStream envio = new ObjectOutputStream(enviar_destino.getOutputStream());
+                        envio.writeObject(compra);
+                        enviar_destino.close();
+                        envio.close();
+                        
+                     }
+                    else{
+                        String ip = jugadorActual.getIp();
+                        Socket enviar_destino = new Socket(ip,9090);
+                        Paquete_enviar compra = new Paquete_enviar();
+                        compra.setCodigo(4);
+                        compra.setJugador(jugadorActual);
+                        compra.setCompraExitosa(false);
+                        ObjectOutputStream envio = new ObjectOutputStream(enviar_destino.getOutputStream());
+                        envio.writeObject(compra);
+                        enviar_destino.close();
+                        envio.close();
+                    }
+                    }
                 }
             }
         } catch (IOException ex) {

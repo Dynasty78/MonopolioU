@@ -166,4 +166,10 @@ public class Tablero implements Serializable{
         
     }
     
+    public void iterar(){
+         for(Casilla casilla: casillas) {
+             System.out.println(casilla.getNombre());   
+        }
+    }
+    
 }
