@@ -10,15 +10,18 @@ public class Paquete_enviar implements Serializable {
    int codigo;
    Random seed1, seed2;
    int cantidadJugadores;
-   boolean compraExitosa;
+   
+   String mensaje;
 
-    public boolean isCompraExitosa() {
-        return compraExitosa;
+    public String getMensaje() {
+        return mensaje;
     }
 
-    public void setCompraExitosa(boolean compraExitosa) {
-        this.compraExitosa = compraExitosa;
+    public void setMensaje(String mensaje) {
+        this.mensaje = mensaje;
     }
+
+    
 
     public int getCantidadJugadores() {
         return cantidadJugadores;

@@ -102,8 +102,8 @@ public class Server extends javax.swing.JFrame implements Runnable{
         Paquete_enviar fichas = new Paquete_enviar();
         fichas.setCodigo(3);
         fichas.setCantidadJugadores(jugadores.size());
-        
-        for(String z:listaIP){
+        broadcast(fichas);
+        /*for(String z:listaIP){
             try {
                 Socket enviar_destino = new Socket(z,9090);
                 ObjectOutputStream envio = new ObjectOutputStream(enviar_destino.getOutputStream());
@@ -113,7 +113,7 @@ public class Server extends javax.swing.JFrame implements Runnable{
             } catch (IOException ex) {
                 Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             }
-         }
+         }*/
     }
     @Override
     public void run() {
@@ -148,14 +148,16 @@ public class Server extends javax.swing.JFrame implements Runnable{
                     seedDados.setTablero(tablero);
                     
                     //Le envio los seeds a todos los clientes
-                    for(String z:listaIP){
+                    
+                    broadcast(seedDados);
+                    /*for(String z:listaIP){
                         Socket enviar_destino = new Socket(z,9090);
                         ObjectOutputStream envio = new ObjectOutputStream(enviar_destino.getOutputStream());
                         envio.writeObject(seedDados);
                         enviar_destino.close();
                         envio.close();
                         
-                        }
+                        }*/
                 }
                 else if(codigo == 0){
                     //Usuario nuevo se ha conectado
@@ -232,31 +234,66 @@ public class Server extends javax.swing.JFrame implements Runnable{
                         Propiedad propiedadAcomprar = (Propiedad) casillaJugador;
                         if(jugadorActual.getDinero()>propiedadAcomprar.getCostoSolar() && !propiedadAcomprar.isDueño()){
                             
-                         propiedadAcomprar.setPropietario(jugadorActual);
-                         propiedadAcomprar.setDueño(true);
-                         jugadorActual.getPropiedades().add(propiedadAcomprar);
-                         jugadorActual.setDinero(jugadorActual.getDinero()-propiedadAcomprar.getCostoSolar());
-                         
-                         String ip = jugadorActual.getIp();
-                        
-                        Paquete_enviar compra = new Paquete_enviar();
-                        compra.setCodigo(4);
-                        compra.setJugador(jugadorActual);
-                        compra.setCompraExitosa(true);
-                        compra.setTablero(tablero);
-                        
-                        socketEnviar(compra,ip);
+                                propiedadAcomprar.setPropietario(jugadorActual);
+                                propiedadAcomprar.setDueño(true);
+                                jugadorActual.getPropiedades().add(propiedadAcomprar);
+                                jugadorActual.setDinero(jugadorActual.getDinero()-propiedadAcomprar.getCostoSolar());
+
+                                
+
+                               Paquete_enviar compra = new Paquete_enviar();
+                               compra.setCodigo(4);
+                               compra.setJugador(jugadorActual);
+
+                               compra.setTablero(tablero);
+
+                               broadcast(compra);
                      }
+                        else if(jugadorActual.getDinero()<propiedadAcomprar.getCostoSolar()){
+                            String ip = jugadorActual.getIp();
+                            String mensaje ="No tienes suficiente dinero";
+                            Paquete_enviar compra = new Paquete_enviar();
+                            compra.setCodigo(9);
+                            compra.setMensaje(mensaje);
+                            compra.setJugador(jugadorActual);
+                            socketEnviar(compra,ip);
+                        }
+                        else if(propiedadAcomprar.isDueño()){
+                            Jugador dueño = propiedadAcomprar.getPropietario();
+                            String ip = jugadorActual.getIp();
+                            if(dueño.getId() == jugadorActual.getId()){
+                                String mensaje ="Ya eres dueño de esta propiedad";
+                                Paquete_enviar compra = new Paquete_enviar();
+                                compra.setCodigo(9);
+                                compra.setMensaje(mensaje);
+                                compra.setJugador(jugadorActual);
+                                socketEnviar(compra,ip);
+                            }else{
+                                String mensaje ="Esta propiedad ya tiene dueño";
+                                Paquete_enviar compra = new Paquete_enviar();
+                                compra.setCodigo(9);
+                                compra.setMensaje(mensaje);
+                                compra.setJugador(jugadorActual);
+                                socketEnviar(compra,ip);
+                            }  
+                        }
+                    }
                     else{
                         String ip = jugadorActual.getIp();
-                        
+                        String mensaje ="Esta casilla no es una propiedad";
                         Paquete_enviar compra = new Paquete_enviar();
-                        compra.setCodigo(4);
+                        compra.setCodigo(9);
+                        compra.setMensaje(mensaje);
                         compra.setJugador(jugadorActual);
-                        compra.setCompraExitosa(false);
                         socketEnviar(compra,ip);
                     }
-                    }
+                }
+                else if(codigo == 5){
+                    
+                   /* int posicionJugador;
+                    jugadorActual = mi_paquete.getJugador();
+                    posicionJugador = jugadorActual.getPosicion();
+                    Casilla casillaJugador = tablero.buscarCasilla(posicionJugador);*/
                 }
                 mi_server.close();
                 paquete_datos.close();
@@ -278,5 +315,19 @@ public class Server extends javax.swing.JFrame implements Runnable{
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
+    }
+    
+    public void broadcast(Paquete_enviar paquete_enviar){
+        for(String z:listaIP){
+            try {
+                Socket enviar_destino = new Socket(z,9090);
+                ObjectOutputStream envio = new ObjectOutputStream(enviar_destino.getOutputStream());
+                envio.writeObject(paquete_enviar);
+                enviar_destino.close();
+                envio.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+         }
     }
 }

@@ -347,7 +347,13 @@ public class Client extends javax.swing.JFrame implements Runnable{
                             
                             if(jugadorEnviado.getId() == jugadorlocal.getId()){
                                 jugadorlocal.setPosicion(nueva_posicion);
-                            }     
+                                Paquete_enviar meMovi = new Paquete_enviar();
+                                meMovi.setCodigo(5);
+                                meMovi.setJugador(jugadorlocal);
+                                socketEnviar(meMovi);
+                            }  
+                            
+                            
                     break;
                         
                     case 2:
@@ -371,19 +377,23 @@ public class Client extends javax.swing.JFrame implements Runnable{
                                 jugadorlocal =jugador_Enviado;
                                 int posicion = jugadorlocal.getPosicion();
                                 
-                                if (paquete_recibido.isCompraExitosa()){
-                                    Casilla casillaComprada =tablero.buscarCasilla(posicion);
-                                    propiedad.addItem(casillaComprada.getNombre());
-                                    new Thread(new MensajeUI(PanelMensaje,"Has comprado la propiedad "+casillaComprada.getNombre(),4)).start();
-                                    dinero.setText("$: "+jugadorlocal.getDinero());
-                                    
-                                }
-                                else{
-                                    new Thread(new MensajeUI(PanelMensaje,"No puedes comprar",4)).start();
-                                }
-                            }      
+                                 Casilla casillaComprada =tablero.buscarCasilla(posicion);
+                                 propiedad.addItem(casillaComprada.getNombre());
+                                 new Thread(new MensajeUI(PanelMensaje,"Has comprado la propiedad "+casillaComprada.getNombre(),4)).start();
+                                 dinero.setText("$: "+jugadorlocal.getDinero());
+                                   
+                            }
+                            else{
+                                
+                                int posicion = jugador_Enviado.getPosicion();
+                                Casilla casillaComprada =tablero.buscarCasilla(posicion);
+                                new Thread(new MensajeUI(PanelMensaje,"Eljugador "+jugador_Enviado.getId()+" comprado la propiedad "+casillaComprada.getNombre(),4)).start();
+                            }
                     break;
-                        
+                    case 9: 
+                            String mensaje = paquete_recibido.getMensaje();
+                            new Thread(new MensajeUI(PanelMensaje,mensaje,4)).start();
+                    break;
                     default:
                         break;
                 }
