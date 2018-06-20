@@ -22,9 +22,11 @@ public class Client extends javax.swing.JFrame implements Runnable{
      public int dice1 = 0, dice2 = 0;
      public Jugador jugadorlocal;
      ArrayList<javax.swing.JLabel> fichas = new ArrayList();
-      int nueva_posicion;
+     int nueva_posicion;
+     String IPServidor = "192.168.0.105";
      boolean segundoDado;
-    public Client() {
+    
+     public Client() {
         initComponents();
         Thread mi_hilo = new Thread(this);
         mi_hilo.start();
@@ -65,7 +67,6 @@ public class Client extends javax.swing.JFrame implements Runnable{
         dinero = new javax.swing.JLabel();
         finalizarTurno = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
-        Movimiento = new javax.swing.JButton();
         propiedadPosicion = new javax.swing.JLabel();
         compra = new javax.swing.JButton();
         propiedad = new javax.swing.JComboBox<>();
@@ -153,15 +154,6 @@ public class Client extends javax.swing.JFrame implements Runnable{
         jPanel1.add(jLabel1);
         jLabel1.setBounds(770, 340, 50, 50);
 
-        Movimiento.setText("Movimiento");
-        Movimiento.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                MovimientoActionPerformed(evt);
-            }
-        });
-        jPanel1.add(Movimiento);
-        Movimiento.setBounds(1030, 770, 87, 23);
-
         propiedadPosicion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/solarium2.0.png"))); // NOI18N
         jPanel1.add(propiedadPosicion);
         propiedadPosicion.setBounds(800, 290, 250, 290);
@@ -190,49 +182,32 @@ public class Client extends javax.swing.JFrame implements Runnable{
     }// </editor-fold>//GEN-END:initComponents
 
     private void dadosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dadosActionPerformed
-     //if(!segundoDado){
+     if(!segundoDado){
         if(jugadorlocal.isTurno()){
-        segundoDado = true;
-        try {
-            Socket mi_socket = new Socket("192.168.0.105",9999);
-            Paquete_enviar datos = new Paquete_enviar();
-            datos.setJugador(jugadorlocal);
-            datos.setCodigo(1);
-            ObjectOutputStream paquete_datos = new ObjectOutputStream(mi_socket.getOutputStream());
-            paquete_datos.writeObject(datos);
-            mi_socket.close();
-            paquete_datos.close();
-
-        } catch (IOException ex) {
-            System.out.println(ex.getMessage());
-        }
+            segundoDado = true;
+            Paquete_enviar lanzarDados = new Paquete_enviar();
+            lanzarDados.setJugador(jugadorlocal);
+            lanzarDados.setCodigo(1);
+            socketEnviar(lanzarDados);
        }
       else{
           new Thread(new MensajeUI(PanelMensaje,"Aun no es tu turno!",4)).start();
       }
-   /*  }else{
+      }else{
          new Thread(new MensajeUI(PanelMensaje,"Ya lanzaste los dados",4)).start();
-     }*/
+     }
     }//GEN-LAST:event_dadosActionPerformed
 
     private void finalizarTurnoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_finalizarTurnoActionPerformed
       if(jugadorlocal.isTurno()){
-        segundoDado= false;  
-        try {
-            Socket mi_socket = new Socket("192.168.0.105",9999);
-            Paquete_enviar datos = new Paquete_enviar();
-            datos.setJugador(jugadorlocal);
-            datos.setCodigo(2);
-            ObjectOutputStream paquete_datos = new ObjectOutputStream(mi_socket.getOutputStream());
-            paquete_datos.writeObject(datos);
-            mi_socket.close();
-            paquete_datos.close();
-
-        } catch (IOException ex) {
-            System.out.println(ex.getMessage());
-        }
-        jugadorlocal.setTurno(false);
-        turno.setText("Esperando turno");
+            segundoDado= false;  
+            Paquete_enviar finalizarTurno = new Paquete_enviar();
+            finalizarTurno.setJugador(jugadorlocal);
+            finalizarTurno.setCodigo(2);
+            socketEnviar(finalizarTurno);
+            jugadorlocal.setTurno(false);
+            turno.setText("Esperando turno");
+            new Thread(new MensajeUI(PanelMensaje,"Has finalizado tu turno",4)).start();
        }
       else{
           new Thread(new MensajeUI(PanelMensaje,"Aun no es tu turno!",4)).start();
@@ -241,30 +216,17 @@ public class Client extends javax.swing.JFrame implements Runnable{
 
     private void imagenTableroMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_imagenTableroMouseMoved
         /*int x,y;
-        x =evt.getX();
-        y=evt.getY();
+        x = evt.getX();
+        y= evt.getY();
         System.out.println("posicion: "+x+" "+y);*/
     }//GEN-LAST:event_imagenTableroMouseMoved
 
-    private void MovimientoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MovimientoActionPerformed
- 
-    }//GEN-LAST:event_MovimientoActionPerformed
-
     private void compraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_compraActionPerformed
        if(jugadorlocal.isTurno()){ 
-        try {
-            Socket mi_socket = new Socket("192.168.0.105",9999);
-            Paquete_enviar datos = new Paquete_enviar();
-            datos.setJugador(jugadorlocal);
-            datos.setCodigo(4);
-            ObjectOutputStream paquete_datos = new ObjectOutputStream(mi_socket.getOutputStream());
-            paquete_datos.writeObject(datos);
-            mi_socket.close();
-            paquete_datos.close();
-
-        } catch (IOException ex) {
-            System.out.println(ex.getMessage());
-        }
+           Paquete_enviar comprar = new Paquete_enviar();
+           comprar.setJugador(jugadorlocal);
+           comprar.setCodigo(4);
+           socketEnviar(comprar);
        }
       else{
           new Thread(new MensajeUI(PanelMensaje,"Aun no es tu turno!",4)).start();
@@ -309,7 +271,6 @@ public class Client extends javax.swing.JFrame implements Runnable{
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton Movimiento;
     private javax.swing.JPanel PanelMensaje;
     private javax.swing.JButton compra;
     private javax.swing.JLabel dado1;
@@ -336,86 +297,95 @@ public class Client extends javax.swing.JFrame implements Runnable{
     @Override
     public void run() {
         try {
+            
             ServerSocket servidor_cliente = new ServerSocket(9090);
             Socket cliente;
             Paquete_enviar paquete_recibido;
             int codigo;
             
-
             while(true){
                 cliente = servidor_cliente.accept();
                 ObjectInputStream paquete_datos = new ObjectInputStream(cliente.getInputStream());
                 paquete_recibido = (Paquete_enviar) paquete_datos.readObject();
                 codigo = paquete_recibido.getCodigo();
-                if(codigo == 0){
-                    jugadorlocal = paquete_recibido.getJugador();
-                    dinero.setText("$: "+jugadorlocal.getDinero());
-                    if(jugadorlocal.isTurno()){
-                        new Thread(new MensajeUI(PanelMensaje,"Ha empezado el juego, es tu turno!",4)).start();
-                        turno.setText("Tu turno");
-                    }
-                    else{
-                         new Thread(new MensajeUI(PanelMensaje,"Ha empezado el juego, esperando turno",4)).start();
-                        turno.setText("Esperando turno");
-                    }
-                }
-                else if(codigo ==1){
-                    Random seed1, seed2;
-                    seed1 = paquete_recibido.getSeed1();
-                    seed2 =paquete_recibido.getSeed2();
-                    animacionDados(seed1,seed2);
-                    Jugador jugadorEnviado = paquete_recibido.getJugador();
-                    
-                    try {
-                        Thread.sleep(3000);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                        nueva_posicion =jugadorEnviado.getPosicion()+dice1+dice2;
-                        if(nueva_posicion > 40){
-                            nueva_posicion = nueva_posicion -40;
-                        }
-                        
-                        animacionFicha(jugadorEnviado.getPosicion(), nueva_posicion,paquete_recibido.getTablero(),jugadorEnviado.getId());
-                        //int x,y;
-                        
-                       /*Casilla casilla = paquete_recibido.getTablero().buscarCasilla(nueva_posicion);
-                       x = casilla.getPosicionx();
-                       y = casilla.getPosiciony();
-                       
-                       fichas.get(jugadorEnviado.getId()-1).setLocation(x, y);
-                      fichas.get(jugadorEnviado.getId()-1).setBounds(x, y,50,40);*/
-                      if(jugadorEnviado.getId()==jugadorlocal.getId()){
-                          jugadorlocal.setPosicion(nueva_posicion);
-                      }
-                } else if(codigo ==2){
-                    jugadorlocal.setTurno(true);
-                    new Thread(new MensajeUI(PanelMensaje,"Es tu turno! lanza los dados",4)).start();
-                    turno.setText("Tu turno");
-                }
-                else if(codigo == 3){
-                    int cantidad = paquete_recibido.getCantidadJugadores();
-                    for(int i = 0; i<cantidad; i++){
-                        fichas.get(i).setVisible(true);
-                    }
-                }
-                else if(codigo ==4){
-                    Jugador jugadorEnviado = paquete_recibido.getJugador();
-                    Tablero tablero = paquete_recibido.getTablero();
-                    if(jugadorEnviado.getId() == jugadorlocal.getId()){
-                        jugadorlocal =jugadorEnviado;
-                        int posicion = jugadorlocal.getPosicion();
-                         
-                        if (paquete_recibido.isCompraExitosa()){
-                            Casilla casillaComprada =tablero.buscarCasilla(posicion);
-                            propiedad.addItem(casillaComprada.getNombre());
-                            new Thread(new MensajeUI(PanelMensaje,"Has comprado la propiedad "+casillaComprada.getNombre(),4)).start();
-                            dinero.setText("$: "+jugadorlocal.getDinero());
+                
+                switch (codigo) {
+                    case 0:
+                        //Se le asigna al cliente el jugador enviado por el servidor
+                        jugadorlocal = paquete_recibido.getJugador();
+                        dinero.setText("$: "+jugadorlocal.getDinero());
+                        if(jugadorlocal.isTurno()){
+                            new Thread(new MensajeUI(PanelMensaje,"Ha empezado el juego, es tu turno!",4)).start();
+                            turno.setText("Tu turno");
                         }
                         else{
-                             new Thread(new MensajeUI(PanelMensaje,"No puedes comprar",4)).start();
-                        }
-                    }
+                            new Thread(new MensajeUI(PanelMensaje,"Ha empezado el juego, esperando turno",4)).start();
+                            turno.setText("Esperando turno");
+                        }  
+                    break;
+                    case 1:
+                        //Se toman las seeds para la animacion de los dados tambien se mueve la ficha del jugador
+                            Random seed1, seed2;
+                            seed1 = paquete_recibido.getSeed1();
+                            seed2 =paquete_recibido.getSeed2();
+                            animacionDados(seed1,seed2);
+                            Jugador jugadorEnviado = paquete_recibido.getJugador();
+                           
+                            try {
+                                Thread.sleep(3000);
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                            }      
+                           
+                            nueva_posicion =jugadorEnviado.getPosicion()+dice1+dice2;
+                            
+                            if(nueva_posicion > 40){
+                                nueva_posicion = nueva_posicion -40;
+                            }  
+                            
+                            animacionFicha(jugadorEnviado.getPosicion(), nueva_posicion,paquete_recibido.getTablero(),jugadorEnviado.getId());
+                            
+                            if(jugadorEnviado.getId() == jugadorlocal.getId()){
+                                jugadorlocal.setPosicion(nueva_posicion);
+                            }     
+                    break;
+                        
+                    case 2:
+                        //Se le pasa el turno al jugador
+                        jugadorlocal.setTurno(true);
+                        new Thread(new MensajeUI(PanelMensaje,"Es tu turno! lanza los dados",4)).start();
+                        turno.setText("Tu turno");
+                    break;
+                    case 3:
+                        //Se ponen visibles las fichas dependiendo de la cantidad de jugadores
+                        int cantidad = paquete_recibido.getCantidadJugadores();
+                        for(int i = 0; i<cantidad; i++){
+                            fichas.get(i).setVisible(true);
+                        }  
+                    break;
+                    case 4:
+                            //Se le envia un mensaje al jugador si la compra fue exitosa y se añade a sus propiedades
+                            Jugador jugador_Enviado = paquete_recibido.getJugador();
+                            Tablero tablero = paquete_recibido.getTablero();
+                            if(jugador_Enviado.getId() == jugadorlocal.getId()){
+                                jugadorlocal =jugador_Enviado;
+                                int posicion = jugadorlocal.getPosicion();
+                                
+                                if (paquete_recibido.isCompraExitosa()){
+                                    Casilla casillaComprada =tablero.buscarCasilla(posicion);
+                                    propiedad.addItem(casillaComprada.getNombre());
+                                    new Thread(new MensajeUI(PanelMensaje,"Has comprado la propiedad "+casillaComprada.getNombre(),4)).start();
+                                    dinero.setText("$: "+jugadorlocal.getDinero());
+                                    
+                                }
+                                else{
+                                    new Thread(new MensajeUI(PanelMensaje,"No puedes comprar",4)).start();
+                                }
+                            }      
+                    break;
+                        
+                    default:
+                        break;
                 }
                 cliente.close();
                 paquete_datos.close();
@@ -534,5 +504,17 @@ public class Client extends javax.swing.JFrame implements Runnable{
        }
          };
         timer.schedule(tarea, 0, 100);
+    }
+    
+    public void socketEnviar(Paquete_enviar paquete_enviar){
+        try {
+            Socket socket = new Socket(IPServidor,9999);
+            ObjectOutputStream paquete_datos = new ObjectOutputStream(socket.getOutputStream());
+            paquete_datos.writeObject(paquete_enviar);
+            socket.close();
+            paquete_datos.close();
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 }

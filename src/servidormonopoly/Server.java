@@ -154,8 +154,7 @@ public class Server extends javax.swing.JFrame implements Runnable{
                         envio.writeObject(seedDados);
                         enviar_destino.close();
                         envio.close();
-                        mi_server.close();
-                        paquete_datos.close();
+                        
                         }
                 }
                 else if(codigo == 0){
@@ -177,8 +176,7 @@ public class Server extends javax.swing.JFrame implements Runnable{
                     else{
                         jugador.setTurno(false);
                     }
-                    
-                    
+                   
                     //Añadimos el juador a la lista de jugadores
                     jugadores.add(jugador);
                     
@@ -187,15 +185,9 @@ public class Server extends javax.swing.JFrame implements Runnable{
                     nuevoJugador.setCodigo(codigo);
                     nuevoJugador.setJugador(jugador);
                     
-                    Socket enviar_destino = new Socket(ipremota,9090);
-                    ObjectOutputStream envio = new ObjectOutputStream(enviar_destino.getOutputStream());
-                    envio.writeObject(nuevoJugador);
-                    enviar_destino.close();
-                    envio.close();
-                     mi_server.close();
-                     paquete_datos.close();
-                     enviarFichas();
-                     
+                    socketEnviar(nuevoJugador,ipremota);
+                    
+                    enviarFichas();
                     
                 }
                 else if(codigo == 2){
@@ -207,31 +199,25 @@ public class Server extends javax.swing.JFrame implements Runnable{
                     int idJugadorActual = jugadorActual.getId();
                     int nuevoTurno;
                     
-                    
                     if(cantidadDeJugadores-idJugadorActual != 0){
                         nuevoTurno = idJugadorActual;
                         String ip = jugadores.get(nuevoTurno).getIp();
                         areatexto.append("\nEs el turno del jugador "+jugadores.get(nuevoTurno).getId());
-                        Socket enviar_destino = new Socket(ip,9090);
+                       
                         Paquete_enviar turno = new Paquete_enviar();
                         turno.setCodigo(2);
-                        ObjectOutputStream envio = new ObjectOutputStream(enviar_destino.getOutputStream());
-                        envio.writeObject(turno);
-                        enviar_destino.close();
-                        envio.close();
-                        
+                       
+                        socketEnviar(turno,ip);
                     }
                     else{
                         nuevoTurno = 0;
                         String ip = jugadores.get(nuevoTurno).getIp();
                         areatexto.append("\nEs el turno del jugador "+jugadores.get(nuevoTurno).getId());
-                        Socket enviar_destino = new Socket(ip,9090);
+                        
                         Paquete_enviar turno = new Paquete_enviar();
                         turno.setCodigo(2);
-                        ObjectOutputStream envio = new ObjectOutputStream(enviar_destino.getOutputStream());
-                        envio.writeObject(turno);
-                        enviar_destino.close();
-                        envio.close();
+                        
+                        socketEnviar(turno,ip);
                         
                     }
                     
@@ -252,37 +238,45 @@ public class Server extends javax.swing.JFrame implements Runnable{
                          jugadorActual.setDinero(jugadorActual.getDinero()-propiedadAcomprar.getCostoSolar());
                          
                          String ip = jugadorActual.getIp();
-                         Socket enviar_destino = new Socket(ip,9090);
+                        
                         Paquete_enviar compra = new Paquete_enviar();
                         compra.setCodigo(4);
                         compra.setJugador(jugadorActual);
                         compra.setCompraExitosa(true);
                         compra.setTablero(tablero);
-                        ObjectOutputStream envio = new ObjectOutputStream(enviar_destino.getOutputStream());
-                        envio.writeObject(compra);
-                        enviar_destino.close();
-                        envio.close();
                         
+                        socketEnviar(compra,ip);
                      }
                     else{
                         String ip = jugadorActual.getIp();
-                        Socket enviar_destino = new Socket(ip,9090);
+                        
                         Paquete_enviar compra = new Paquete_enviar();
                         compra.setCodigo(4);
                         compra.setJugador(jugadorActual);
                         compra.setCompraExitosa(false);
-                        ObjectOutputStream envio = new ObjectOutputStream(enviar_destino.getOutputStream());
-                        envio.writeObject(compra);
-                        enviar_destino.close();
-                        envio.close();
+                        socketEnviar(compra,ip);
                     }
                     }
                 }
+                mi_server.close();
+                paquete_datos.close();
             }
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void socketEnviar(Paquete_enviar paquete_enviar, String IPServidor){
+        try {
+            Socket socket = new Socket(IPServidor,9090);
+            ObjectOutputStream paquete_datos = new ObjectOutputStream(socket.getOutputStream());
+            paquete_datos.writeObject(paquete_enviar);
+            socket.close();
+            paquete_datos.close();
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
         }
     }
 }
