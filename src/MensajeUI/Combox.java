@@ -16,13 +16,14 @@ public class Combox extends javax.swing.JFrame {
      */
     public Combox() {
         initComponents();
-        micombo.addItem("Hola mama");
+        micombo.removeAllItems();
+       /*micombo.addItem("Hola mama");
         micombo.addItem("Hola mama2");
         micombo.addItem("Hola mama3");
         micombo.addItem("Hola mam4");
         micombo.addItem("Hola mama5");
         micombo.addItem("Hola mam6");
-        micombo.addItem("Hola mama7");
+        micombo.addItem("Hola mama7");*/
         
     }
 
@@ -86,7 +87,8 @@ public class Combox extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void micomboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_micomboActionPerformed
-        System.out.println(micombo.getSelectedItem());
+        System.out.println(micombo.getSelectedIndex());
+        micombo.addItem("Hola mama");
     }//GEN-LAST:event_micomboActionPerformed
 
     /**

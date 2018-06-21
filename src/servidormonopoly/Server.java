@@ -103,17 +103,6 @@ public class Server extends javax.swing.JFrame implements Runnable{
         fichas.setCodigo(3);
         fichas.setCantidadJugadores(jugadores.size());
         broadcast(fichas);
-        /*for(String z:listaIP){
-            try {
-                Socket enviar_destino = new Socket(z,9090);
-                ObjectOutputStream envio = new ObjectOutputStream(enviar_destino.getOutputStream());
-                envio.writeObject(fichas);
-                enviar_destino.close();
-                envio.close();
-            } catch (IOException ex) {
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-            }
-         }*/
     }
     @Override
     public void run() {
@@ -150,14 +139,7 @@ public class Server extends javax.swing.JFrame implements Runnable{
                     //Le envio los seeds a todos los clientes
                     
                     broadcast(seedDados);
-                    /*for(String z:listaIP){
-                        Socket enviar_destino = new Socket(z,9090);
-                        ObjectOutputStream envio = new ObjectOutputStream(enviar_destino.getOutputStream());
-                        envio.writeObject(seedDados);
-                        enviar_destino.close();
-                        envio.close();
-                        
-                        }*/
+                   
                 }
                 else if(codigo == 0){
                     //Usuario nuevo se ha conectado
@@ -194,8 +176,23 @@ public class Server extends javax.swing.JFrame implements Runnable{
                 }
                 else if(codigo == 2){
                     //Pasa el turno al siguiente jugador de forma dinamica
-                    
+                    int id;
                     jugadorActual = mi_paquete.getJugador();
+                    
+                    for(Propiedad propiedad: jugadorActual.getPropiedades()){
+                        propiedad.setPropietario(jugadorActual);
+                    }
+                    
+                    for(Propiedad propiedad: jugadorActual.getPropiedades()){
+                        id = propiedad.getPosicionTablero();
+                        Casilla casillaPropiedad = tablero.buscarCasilla(id);
+                        
+                      if(casillaPropiedad instanceof Propiedad){
+                          ((Propiedad) casillaPropiedad).setPropietario(jugadorActual);
+                      }
+                    }
+                    
+                    
                     areatexto.append("\nEl jugador "+jugadorActual.getId()+" ha finalizado su turno");
                     int cantidadDeJugadores = jugadores.size();
                     int idJugadorActual = jugadorActual.getId();
@@ -238,8 +235,6 @@ public class Server extends javax.swing.JFrame implements Runnable{
                                 propiedadAcomprar.setDueño(true);
                                 jugadorActual.getPropiedades().add(propiedadAcomprar);
                                 jugadorActual.setDinero(jugadorActual.getDinero()-propiedadAcomprar.getCostoSolar());
-
-                                
 
                                Paquete_enviar compra = new Paquete_enviar();
                                compra.setCodigo(4);
@@ -290,10 +285,14 @@ public class Server extends javax.swing.JFrame implements Runnable{
                 }
                 else if(codigo == 5){
                     
-                   /* int posicionJugador;
+                   int posicionJugador;
                     jugadorActual = mi_paquete.getJugador();
+                    System.out.println(jugadorActual.getDinero());
+                    System.out.println(jugadorActual.getId());
                     posicionJugador = jugadorActual.getPosicion();
-                    Casilla casillaJugador = tablero.buscarCasilla(posicionJugador);*/
+                    Casilla casillaJugador = tablero.buscarCasilla(posicionJugador);
+                    casillaJugador.alLlegar(jugadorActual);
+                    
                 }
                 mi_server.close();
                 paquete_datos.close();

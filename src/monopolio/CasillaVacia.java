@@ -19,11 +19,13 @@ public class CasillaVacia extends Casilla {
     @Override
     public void alSalir() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    
     }
 
     @Override
-    public void alLlegar() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void alLlegar(Jugador jugador) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //System.out.println("Hola");
     }
     
 }

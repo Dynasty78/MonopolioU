@@ -53,5 +53,5 @@ public abstract class Casilla implements Serializable{
 
     
     public abstract void alSalir();
-    public abstract void alLlegar();
+    public abstract void alLlegar(Jugador jugador);
 }

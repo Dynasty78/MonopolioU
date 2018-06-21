@@ -94,7 +94,7 @@ public class Client extends javax.swing.JFrame implements Runnable{
         jPanel1.add(fichaUsuario4);
         fichaUsuario4.setBounds(640, 640, 50, 40);
 
-        imagenTablero.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/tablero.png"))); // NOI18N
+        imagenTablero.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/tablero blanco.png"))); // NOI18N
         imagenTablero.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
             public void mouseMoved(java.awt.event.MouseEvent evt) {
                 imagenTableroMouseMoved(evt);
@@ -154,7 +154,7 @@ public class Client extends javax.swing.JFrame implements Runnable{
         jPanel1.add(jLabel1);
         jLabel1.setBounds(770, 340, 50, 50);
 
-        propiedadPosicion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/solarium2.0.png"))); // NOI18N
+        propiedadPosicion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/blanco.jpg"))); // NOI18N
         jPanel1.add(propiedadPosicion);
         propiedadPosicion.setBounds(800, 290, 250, 290);
 
@@ -165,9 +165,14 @@ public class Client extends javax.swing.JFrame implements Runnable{
             }
         });
         jPanel1.add(compra);
-        compra.setBounds(990, 670, 73, 23);
+        compra.setBounds(990, 670, 90, 23);
 
         propiedad.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { " " }));
+        propiedad.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                propiedadActionPerformed(evt);
+            }
+        });
         jPanel1.add(propiedad);
         propiedad.setBounds(800, 250, 250, 20);
 
@@ -176,13 +181,13 @@ public class Client extends javax.swing.JFrame implements Runnable{
         jPanel1.add(jLabel2);
         jLabel2.setBounds(800, 220, 90, 18);
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1140, 710));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1140, 700));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void dadosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dadosActionPerformed
-     if(!segundoDado){
+     //if(!segundoDado){
         if(jugadorlocal.isTurno()){
             segundoDado = true;
             Paquete_enviar lanzarDados = new Paquete_enviar();
@@ -193,20 +198,21 @@ public class Client extends javax.swing.JFrame implements Runnable{
       else{
           new Thread(new MensajeUI(PanelMensaje,"Aun no es tu turno!",4)).start();
       }
-      }else{
+      /*}else{
          new Thread(new MensajeUI(PanelMensaje,"Ya lanzaste los dados",4)).start();
-     }
+     }*/
     }//GEN-LAST:event_dadosActionPerformed
 
     private void finalizarTurnoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_finalizarTurnoActionPerformed
       if(jugadorlocal.isTurno()){
             segundoDado= false;  
+            jugadorlocal.setTurno(false);
+            turno.setText("Esperando turno");
             Paquete_enviar finalizarTurno = new Paquete_enviar();
             finalizarTurno.setJugador(jugadorlocal);
             finalizarTurno.setCodigo(2);
             socketEnviar(finalizarTurno);
-            jugadorlocal.setTurno(false);
-            turno.setText("Esperando turno");
+            
             new Thread(new MensajeUI(PanelMensaje,"Has finalizado tu turno",4)).start();
        }
       else{
@@ -232,6 +238,19 @@ public class Client extends javax.swing.JFrame implements Runnable{
           new Thread(new MensajeUI(PanelMensaje,"Aun no es tu turno!",4)).start();
       }
     }//GEN-LAST:event_compraActionPerformed
+
+    private void propiedadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_propiedadActionPerformed
+      int idpropiedad = propiedad.getSelectedIndex() -1;
+        System.out.println(idpropiedad);
+      if(idpropiedad==-1){
+       
+          propiedadPosicion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/blanco.jpg")));
+      }else{
+          String imagen =jugadorlocal.getPropiedades().get(idpropiedad).getImg();
+          propiedadPosicion.setIcon(new javax.swing.ImageIcon(getClass().getResource(imagen)));
+      }
+      
+    }//GEN-LAST:event_propiedadActionPerformed
 
     /**
      * @param args the command line arguments
@@ -391,8 +410,11 @@ public class Client extends javax.swing.JFrame implements Runnable{
                             }
                     break;
                     case 9: 
+                            jugadorlocal = paquete_recibido.getJugador();
+                            dinero.setText("$: "+jugadorlocal.getDinero());
                             String mensaje = paquete_recibido.getMensaje();
                             new Thread(new MensajeUI(PanelMensaje,mensaje,4)).start();
+                            
                     break;
                     default:
                         break;
