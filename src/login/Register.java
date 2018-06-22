@@ -107,7 +107,7 @@ public class Register extends javax.swing.JFrame {
         username_label.setFont(new java.awt.Font("Cambria", 1, 14)); // NOI18N
         username_label.setText("Username");
 
-        buildings_label.setIcon(new javax.swing.ImageIcon("C:\\Users\\hogar\\Documents\\Monopoly\\buildings1.png")); // NOI18N
+        buildings_label.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/buildings1.png"))); // NOI18N
 
         javax.swing.GroupLayout backgroudLayout = new javax.swing.GroupLayout(backgroud);
         backgroud.setLayout(backgroudLayout);

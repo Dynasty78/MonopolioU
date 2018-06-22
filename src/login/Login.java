@@ -71,7 +71,7 @@ public class Login extends javax.swing.JFrame implements Runnable {
         password_label.setFont(new java.awt.Font("Cambria", 1, 14)); // NOI18N
         password_label.setText("Password");
 
-        logo.setIcon(new javax.swing.ImageIcon("C:\\Users\\hogar\\Documents\\Monopoly\\logo22.png")); // NOI18N
+        logo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/logo22.png"))); // NOI18N
 
         prueba.setText("Entrar");
         prueba.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -102,7 +102,7 @@ public class Login extends javax.swing.JFrame implements Runnable {
             }
         });
 
-        logoimage.setIcon(new javax.swing.ImageIcon("C:\\Users\\hogar\\Documents\\Monopoly\\loginbuildings2.png")); // NOI18N
+        logoimage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/loginbuildings2.png"))); // NOI18N
 
         javax.swing.GroupLayout backgroudLayout = new javax.swing.GroupLayout(backgroud);
         backgroud.setLayout(backgroudLayout);
@@ -170,11 +170,11 @@ public class Login extends javax.swing.JFrame implements Runnable {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(backgroud, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 498, Short.MAX_VALUE)
+            .addComponent(backgroud, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(backgroud, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 470, Short.MAX_VALUE)
+            .addComponent(backgroud, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
