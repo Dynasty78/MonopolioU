@@ -8,10 +8,18 @@ import java.net.Socket;
 import envio.Paquete_enviar;
 
 public class Online extends WindowAdapter{
+    private String server_ip_address;
+    
+    public Online(String server_ip_address){
+        this.server_ip_address = server_ip_address;
+    }
+    
+    public Online(){}
+    
     @Override
     public void windowOpened(WindowEvent e){
         try{
-            Socket socket =new Socket("192.168.0.105",9999);
+            Socket socket =new Socket(server_ip_address,9999);
             Paquete_enviar paquete = new Paquete_enviar();
             paquete.setCodigo(0);
             ObjectOutputStream paquete_datos= new ObjectOutputStream(socket.getOutputStream());

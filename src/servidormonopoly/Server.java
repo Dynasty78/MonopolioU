@@ -2,6 +2,7 @@
 package servidormonopoly;
 
 import envio.Paquete_enviar;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -12,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import login.Handler;
+import login.User;
 import monopolio.Casilla;
 import monopolio.Jugador;
 import monopolio.Propiedad;
@@ -24,6 +27,8 @@ public class Server extends javax.swing.JFrame implements Runnable{
     int idJugador = 0;
     Jugador jugadorActual;
     Tablero tablero;
+    
+    private Handler handler;
 
     public Server() {
         initComponents();
@@ -31,6 +36,7 @@ public class Server extends javax.swing.JFrame implements Runnable{
         mi_hilo.start();
         tablero = new Tablero();
         tablero.generarCasillas();
+        this.handler = new Handler();
     }
 
     @SuppressWarnings("unchecked")
@@ -115,187 +121,220 @@ public class Server extends javax.swing.JFrame implements Runnable{
             while(true){
                 Socket mi_server = server.accept();
                 ObjectInputStream paquete_datos = new ObjectInputStream(mi_server.getInputStream());
-                mi_paquete = (Paquete_enviar) paquete_datos.readObject();
-                codigo = mi_paquete.getCodigo();
                 
-              
-                if(codigo == 1){
-                    //Lanzamiento de dados
-                    jugadorActual = mi_paquete.getJugador();
-                    origen= jugadorActual.getId();
-                    areatexto.append("\n"+"El usuario "+origen+" lanzo los dados");
+                Object object = paquete_datos.readObject();
+                
+                if(object instanceof Paquete_enviar){
                     
-                    //Se crean los random para enviarlos a todos los clientes y que de como resultado la misma animacion
+                    mi_paquete = (Paquete_enviar) object;
+                    codigo = mi_paquete.getCodigo();
                     
-                    Random rd=new Random();
-                    Random rd2 = new Random();
-                    Paquete_enviar seedDados = new Paquete_enviar();
-                    seedDados.setJugador(jugadorActual);
-                    seedDados.setSeed1(rd);
-                    seedDados.setSeed2(rd2);
-                    seedDados.setCodigo(codigo);
-                    seedDados.setTablero(tablero);
-                    
-                    //Le envio los seeds a todos los clientes
-                    
-                    broadcast(seedDados);
-                   
-                }
-                else if(codigo == 0){
-                    //Usuario nuevo se ha conectado
-                    idJugador++;
-                    InetAddress localizacion = mi_server.getInetAddress();
-                    String ipremota = localizacion.getHostAddress();
-                    listaIP.add(ipremota);
-                    areatexto.append("\n"+"Se ha conectado "+ipremota+" Se le asigna el Jugador numero "+idJugador);
-                    
-                    //Creacion del nuevo jugador
-                    Jugador jugador = new Jugador(1500);
-                    jugador.setId(idJugador);
-                    jugador.setIp(ipremota);
-                    jugador.setPosicion(1);
-                    if (idJugador == 1){
-                        jugador.setTurno(true);
-                    }
-                    else{
-                        jugador.setTurno(false);
-                    }
-                   
-                    //Añadimos el juador a la lista de jugadores
-                    jugadores.add(jugador);
-                    
-                    //Le enviamos el jugador al cliente correspondiente
-                    Paquete_enviar nuevoJugador = new Paquete_enviar();
-                    nuevoJugador.setCodigo(codigo);
-                    nuevoJugador.setJugador(jugador);
-                    
-                    socketEnviar(nuevoJugador,ipremota);
-                    
-                    enviarFichas();
-                    
-                }
-                else if(codigo == 2){
-                    //Pasa el turno al siguiente jugador de forma dinamica
-                    int id;
-                    jugadorActual = mi_paquete.getJugador();
-                    
-                    for(Propiedad propiedad: jugadorActual.getPropiedades()){
-                        propiedad.setPropietario(jugadorActual);
-                    }
-                    
-                    for(Propiedad propiedad: jugadorActual.getPropiedades()){
-                        id = propiedad.getPosicionTablero();
-                        Casilla casillaPropiedad = tablero.buscarCasilla(id);
-                        
-                      if(casillaPropiedad instanceof Propiedad){
-                          ((Propiedad) casillaPropiedad).setPropietario(jugadorActual);
-                      }
-                    }
-                    
-                    
-                    areatexto.append("\nEl jugador "+jugadorActual.getId()+" ha finalizado su turno");
-                    int cantidadDeJugadores = jugadores.size();
-                    int idJugadorActual = jugadorActual.getId();
-                    int nuevoTurno;
-                    
-                    if(cantidadDeJugadores-idJugadorActual != 0){
-                        nuevoTurno = idJugadorActual;
-                        String ip = jugadores.get(nuevoTurno).getIp();
-                        areatexto.append("\nEs el turno del jugador "+jugadores.get(nuevoTurno).getId());
-                       
-                        Paquete_enviar turno = new Paquete_enviar();
-                        turno.setCodigo(2);
-                       
-                        socketEnviar(turno,ip);
-                    }
-                    else{
-                        nuevoTurno = 0;
-                        String ip = jugadores.get(nuevoTurno).getIp();
-                        areatexto.append("\nEs el turno del jugador "+jugadores.get(nuevoTurno).getId());
-                        
-                        Paquete_enviar turno = new Paquete_enviar();
-                        turno.setCodigo(2);
-                        
-                        socketEnviar(turno,ip);
-                        
-                    }
-                    
-                }else if(codigo == 4){
-                    int posicionJugador;
-                    jugadorActual = mi_paquete.getJugador();
-                    posicionJugador = jugadorActual.getPosicion();
-                    Casilla casillaJugador = tablero.buscarCasilla(posicionJugador);
-                    
-                    if(casillaJugador instanceof Propiedad){
-                       
-                        Propiedad propiedadAcomprar = (Propiedad) casillaJugador;
-                        if(jugadorActual.getDinero()>propiedadAcomprar.getCostoSolar() && !propiedadAcomprar.isDueño()){
-                            
-                                propiedadAcomprar.setPropietario(jugadorActual);
-                                propiedadAcomprar.setDueño(true);
-                                jugadorActual.getPropiedades().add(propiedadAcomprar);
-                                jugadorActual.setDinero(jugadorActual.getDinero()-propiedadAcomprar.getCostoSolar());
+                    if(codigo == 1){
+                        //Lanzamiento de dados
+                        jugadorActual = mi_paquete.getJugador();
+                        origen= jugadorActual.getId();
+                        areatexto.append("\n"+"El usuario "+origen+" lanzo los dados");
 
-                               Paquete_enviar compra = new Paquete_enviar();
-                               compra.setCodigo(4);
-                               compra.setJugador(jugadorActual);
+                        //Se crean los random para enviarlos a todos los clientes y que de como resultado la misma animacion
 
-                               compra.setTablero(tablero);
+                        Random rd=new Random();
+                        Random rd2 = new Random();
+                        Paquete_enviar seedDados = new Paquete_enviar();
+                        seedDados.setJugador(jugadorActual);
+                        seedDados.setSeed1(rd);
+                        seedDados.setSeed2(rd2);
+                        seedDados.setCodigo(codigo);
+                        seedDados.setTablero(tablero);
 
-                               broadcast(compra);
-                     }
-                        else if(jugadorActual.getDinero()<propiedadAcomprar.getCostoSolar()){
+                        //Le envio los seeds a todos los clientes
+
+                        broadcast(seedDados);
+
+                    }
+                    else if(codigo == 0){
+                        //Usuario nuevo se ha conectado
+                        idJugador++;
+                        InetAddress localizacion = mi_server.getInetAddress();
+                        String ipremota = localizacion.getHostAddress();
+                        listaIP.add(ipremota);
+                        areatexto.append("\n"+"Se ha conectado "+ipremota+" Se le asigna el Jugador numero "+idJugador);
+
+                        //Creacion del nuevo jugador
+                        Jugador jugador = new Jugador(1500);
+                        jugador.setId(idJugador);
+                        jugador.setIp(ipremota);
+                        jugador.setPosicion(1);
+                        if (idJugador == 1){
+                            jugador.setTurno(true);
+                        }
+                        else{
+                            jugador.setTurno(false);
+                        }
+
+                        //Añadimos el juador a la lista de jugadores
+                        jugadores.add(jugador);
+
+                        //Le enviamos el jugador al cliente correspondiente
+                        Paquete_enviar nuevoJugador = new Paquete_enviar();
+                        nuevoJugador.setCodigo(codigo);
+                        nuevoJugador.setJugador(jugador);
+
+                        socketEnviar(nuevoJugador,ipremota);
+
+                        enviarFichas();
+
+                    }
+                    else if(codigo == 2){
+                        //Pasa el turno al siguiente jugador de forma dinamica
+                        int id;
+                        jugadorActual = mi_paquete.getJugador();
+
+                        for(Propiedad propiedad: jugadorActual.getPropiedades()){
+                            propiedad.setPropietario(jugadorActual);
+                        }
+
+                        for(Propiedad propiedad: jugadorActual.getPropiedades()){
+                            id = propiedad.getPosicionTablero();
+                            Casilla casillaPropiedad = tablero.buscarCasilla(id);
+
+                          if(casillaPropiedad instanceof Propiedad){
+                              ((Propiedad) casillaPropiedad).setPropietario(jugadorActual);
+                          }
+                        }
+
+
+                        areatexto.append("\nEl jugador "+jugadorActual.getId()+" ha finalizado su turno");
+                        int cantidadDeJugadores = jugadores.size();
+                        int idJugadorActual = jugadorActual.getId();
+                        int nuevoTurno;
+
+                        if(cantidadDeJugadores-idJugadorActual != 0){
+                            nuevoTurno = idJugadorActual;
+                            String ip = jugadores.get(nuevoTurno).getIp();
+                            areatexto.append("\nEs el turno del jugador "+jugadores.get(nuevoTurno).getId());
+
+                            Paquete_enviar turno = new Paquete_enviar();
+                            turno.setCodigo(2);
+
+                            socketEnviar(turno,ip);
+                        }
+                        else{
+                            nuevoTurno = 0;
+                            String ip = jugadores.get(nuevoTurno).getIp();
+                            areatexto.append("\nEs el turno del jugador "+jugadores.get(nuevoTurno).getId());
+
+                            Paquete_enviar turno = new Paquete_enviar();
+                            turno.setCodigo(2);
+
+                            socketEnviar(turno,ip);
+
+                        }
+
+                    }else if(codigo == 4){
+                        int posicionJugador;
+                        jugadorActual = mi_paquete.getJugador();
+                        posicionJugador = jugadorActual.getPosicion();
+                        Casilla casillaJugador = tablero.buscarCasilla(posicionJugador);
+
+                        if(casillaJugador instanceof Propiedad){
+
+                            Propiedad propiedadAcomprar = (Propiedad) casillaJugador;
+                            if(jugadorActual.getDinero()>propiedadAcomprar.getCostoSolar() && !propiedadAcomprar.isDueño()){
+
+                                    propiedadAcomprar.setPropietario(jugadorActual);
+                                    propiedadAcomprar.setDueño(true);
+                                    jugadorActual.getPropiedades().add(propiedadAcomprar);
+                                    jugadorActual.setDinero(jugadorActual.getDinero()-propiedadAcomprar.getCostoSolar());
+
+                                   Paquete_enviar compra = new Paquete_enviar();
+                                   compra.setCodigo(4);
+                                   compra.setJugador(jugadorActual);
+
+                                   compra.setTablero(tablero);
+
+                                   broadcast(compra);
+                         }
+                            else if(jugadorActual.getDinero()<propiedadAcomprar.getCostoSolar()){
+                                String ip = jugadorActual.getIp();
+                                String mensaje ="No tienes suficiente dinero";
+                                Paquete_enviar compra = new Paquete_enviar();
+                                compra.setCodigo(9);
+                                compra.setMensaje(mensaje);
+                                compra.setJugador(jugadorActual);
+                                socketEnviar(compra,ip);
+                            }
+                            else if(propiedadAcomprar.isDueño()){
+                                Jugador dueño = propiedadAcomprar.getPropietario();
+                                String ip = jugadorActual.getIp();
+                                if(dueño.getId() == jugadorActual.getId()){
+                                    String mensaje ="Ya eres dueño de esta propiedad";
+                                    Paquete_enviar compra = new Paquete_enviar();
+                                    compra.setCodigo(9);
+                                    compra.setMensaje(mensaje);
+                                    compra.setJugador(jugadorActual);
+                                    socketEnviar(compra,ip);
+                                }else{
+                                    String mensaje ="Esta propiedad ya tiene dueño";
+                                    Paquete_enviar compra = new Paquete_enviar();
+                                    compra.setCodigo(9);
+                                    compra.setMensaje(mensaje);
+                                    compra.setJugador(jugadorActual);
+                                    socketEnviar(compra,ip);
+                                }  
+                            }
+                        }
+                        else{
                             String ip = jugadorActual.getIp();
-                            String mensaje ="No tienes suficiente dinero";
+                            String mensaje ="Esta casilla no es una propiedad";
                             Paquete_enviar compra = new Paquete_enviar();
                             compra.setCodigo(9);
                             compra.setMensaje(mensaje);
                             compra.setJugador(jugadorActual);
                             socketEnviar(compra,ip);
                         }
-                        else if(propiedadAcomprar.isDueño()){
-                            Jugador dueño = propiedadAcomprar.getPropietario();
-                            String ip = jugadorActual.getIp();
-                            if(dueño.getId() == jugadorActual.getId()){
-                                String mensaje ="Ya eres dueño de esta propiedad";
-                                Paquete_enviar compra = new Paquete_enviar();
-                                compra.setCodigo(9);
-                                compra.setMensaje(mensaje);
-                                compra.setJugador(jugadorActual);
-                                socketEnviar(compra,ip);
-                            }else{
-                                String mensaje ="Esta propiedad ya tiene dueño";
-                                Paquete_enviar compra = new Paquete_enviar();
-                                compra.setCodigo(9);
-                                compra.setMensaje(mensaje);
-                                compra.setJugador(jugadorActual);
-                                socketEnviar(compra,ip);
-                            }  
+                    }
+                    else if(codigo == 5){
+
+                       int posicionJugador;
+                        jugadorActual = mi_paquete.getJugador();
+                        System.out.println(jugadorActual.getDinero());
+                        System.out.println(jugadorActual.getId());
+                        posicionJugador = jugadorActual.getPosicion();
+                        Casilla casillaJugador = tablero.buscarCasilla(posicionJugador);
+                        casillaJugador.alLlegar(jugadorActual);
+
+                    }
+                    
+                    mi_server.close();
+                    paquete_datos.close();
+                    
+                }else if(object instanceof User){
+                    User user = (User) object;//username and password
+                    //Handler handler = new Handler();
+                    if(user.getAction().equals("login")){
+                        /*Login*/
+                        Boolean u = handler.verifignUser(object);
+                        InetAddress localizacion = mi_server.getInetAddress();
+                        String user_ip = localizacion.getHostAddress();
+                        Socket send_client = new Socket(user_ip,9888);
+                        DataOutputStream out = new DataOutputStream(send_client.getOutputStream());
+                        if(u){
+                        /*Send name and lastname to the user*/    
+                            out.writeUTF("cool");  
+                            ObjectOutputStream object_out = new ObjectOutputStream(send_client.getOutputStream());
+                            User user_client = new User(
+                                handler.getData("name",object),
+                                handler.getData("lastname",object),
+                                "","","");
+                            object_out.writeObject(user_client);
+                        }else{
+                            out.writeUTF("login error");
                         }
-                    }
-                    else{
-                        String ip = jugadorActual.getIp();
-                        String mensaje ="Esta casilla no es una propiedad";
-                        Paquete_enviar compra = new Paquete_enviar();
-                        compra.setCodigo(9);
-                        compra.setMensaje(mensaje);
-                        compra.setJugador(jugadorActual);
-                        socketEnviar(compra,ip);
+                    }else if(user.getAction().equals("register")){
+                        handler.saveUser(object);
                     }
                 }
-                else if(codigo == 5){
-                    
-                   int posicionJugador;
-                    jugadorActual = mi_paquete.getJugador();
-                    System.out.println(jugadorActual.getDinero());
-                    System.out.println(jugadorActual.getId());
-                    posicionJugador = jugadorActual.getPosicion();
-                    Casilla casillaJugador = tablero.buscarCasilla(posicionJugador);
-                    casillaJugador.alLlegar(jugadorActual);
-                    
-                }
-                mi_server.close();
-                paquete_datos.close();
+ 
             }
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);

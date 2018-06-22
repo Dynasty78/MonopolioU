@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import monopolio.*;
 import envio.Paquete_enviar;
 import java.util.ArrayList;
+import login.User;
 
 public class Client extends javax.swing.JFrame implements Runnable{
     
@@ -23,15 +24,17 @@ public class Client extends javax.swing.JFrame implements Runnable{
      public Jugador jugadorlocal;
      ArrayList<javax.swing.JLabel> fichas = new ArrayList();
      int nueva_posicion;
-     String IPServidor = "192.168.0.105";
      boolean segundoDado;
+     
+     private String server_ip_address;
+     private Thread mi_hilo;
+     private User user;
     
-     public Client() {
+    /*Whitout Dinamic IP*/ 
+    public Client() {
         initComponents();
         Thread mi_hilo = new Thread(this);
         mi_hilo.start();
-        
-        
         fichaUsuario1.setVisible(false);
         fichaUsuario2.setVisible(false);
         fichaUsuario3.setVisible(false);
@@ -41,9 +44,27 @@ public class Client extends javax.swing.JFrame implements Runnable{
         fichas.add(fichaUsuario3);
         segundoDado = false;
         fichas.add(fichaUsuario4);
-        addWindowListener(new Online());
-        
-        
+        addWindowListener(new Online()); 
+    }
+    
+    /*With Dinamic IP*/
+    public Client(String server_ip_address,User user){
+        initComponents();
+        mi_hilo = new Thread(this);
+        mi_hilo.start();
+        fichaUsuario1.setVisible(false);
+        fichaUsuario2.setVisible(false);
+        fichaUsuario3.setVisible(false);
+        fichaUsuario4.setVisible(false);
+        fichas.add(fichaUsuario1);
+        fichas.add(fichaUsuario2);
+        fichas.add(fichaUsuario3);
+        segundoDado = false;
+        fichas.add(fichaUsuario4);
+        this.server_ip_address = server_ip_address;
+        this.user = user;
+        welcome.setText("Hola, " + user.getName());
+        addWindowListener(new Online(server_ip_address));
     }
 
     @SuppressWarnings("unchecked")
@@ -71,6 +92,7 @@ public class Client extends javax.swing.JFrame implements Runnable{
         compra = new javax.swing.JButton();
         propiedad = new javax.swing.JComboBox<>();
         jLabel2 = new javax.swing.JLabel();
+        welcome = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -126,7 +148,7 @@ public class Client extends javax.swing.JFrame implements Runnable{
         imagen.setBounds(0, 0, 440, 170);
 
         jPanel1.add(PanelMensaje);
-        PanelMensaje.setBounds(700, 40, 440, 170);
+        PanelMensaje.setBounds(700, 70, 440, 170);
 
         usuario.setFont(new java.awt.Font("Verdana", 0, 18)); // NOI18N
         usuario.setText("Username");
@@ -156,7 +178,7 @@ public class Client extends javax.swing.JFrame implements Runnable{
 
         propiedadPosicion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/blanco.jpg"))); // NOI18N
         jPanel1.add(propiedadPosicion);
-        propiedadPosicion.setBounds(800, 290, 250, 290);
+        propiedadPosicion.setBounds(800, 340, 250, 290);
 
         compra.setText("Comprar");
         compra.addActionListener(new java.awt.event.ActionListener() {
@@ -174,12 +196,16 @@ public class Client extends javax.swing.JFrame implements Runnable{
             }
         });
         jPanel1.add(propiedad);
-        propiedad.setBounds(800, 250, 250, 20);
+        propiedad.setBounds(800, 290, 250, 20);
 
         jLabel2.setFont(new java.awt.Font("Bookman Old Style", 1, 14)); // NOI18N
         jLabel2.setText("Propiedades");
         jPanel1.add(jLabel2);
-        jLabel2.setBounds(800, 220, 90, 18);
+        jLabel2.setBounds(800, 250, 90, 18);
+
+        welcome.setFont(new java.awt.Font("Cambria", 1, 13)); // NOI18N
+        jPanel1.add(welcome);
+        welcome.setBounds(710, 30, 110, 30);
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1140, 700));
 
@@ -311,6 +337,7 @@ public class Client extends javax.swing.JFrame implements Runnable{
     private javax.swing.JLabel propiedadPosicion;
     private javax.swing.JLabel turno;
     private javax.swing.JLabel usuario;
+    private javax.swing.JLabel welcome;
     // End of variables declaration//GEN-END:variables
    
     @Override
@@ -540,7 +567,7 @@ public class Client extends javax.swing.JFrame implements Runnable{
     
     public void socketEnviar(Paquete_enviar paquete_enviar){
         try {
-            Socket socket = new Socket(IPServidor,9999);
+            Socket socket = new Socket(server_ip_address,9999);
             ObjectOutputStream paquete_datos = new ObjectOutputStream(socket.getOutputStream());
             paquete_datos.writeObject(paquete_enviar);
             socket.close();
