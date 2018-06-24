@@ -116,7 +116,7 @@ public class Client extends javax.swing.JFrame implements Runnable{
         jPanel1.add(fichaUsuario4);
         fichaUsuario4.setBounds(640, 640, 50, 40);
 
-        imagenTablero.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/tablero blanco.png"))); // NOI18N
+        imagenTablero.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/new_table2.png"))); // NOI18N
         imagenTablero.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
             public void mouseMoved(java.awt.event.MouseEvent evt) {
                 imagenTableroMouseMoved(evt);
@@ -178,7 +178,7 @@ public class Client extends javax.swing.JFrame implements Runnable{
 
         propiedadPosicion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/blanco.jpg"))); // NOI18N
         jPanel1.add(propiedadPosicion);
-        propiedadPosicion.setBounds(800, 340, 250, 290);
+        propiedadPosicion.setBounds(810, 330, 250, 290);
 
         compra.setText("Comprar");
         compra.addActionListener(new java.awt.event.ActionListener() {
@@ -201,7 +201,7 @@ public class Client extends javax.swing.JFrame implements Runnable{
         jLabel2.setFont(new java.awt.Font("Bookman Old Style", 1, 14)); // NOI18N
         jLabel2.setText("Propiedades");
         jPanel1.add(jLabel2);
-        jLabel2.setBounds(800, 250, 90, 18);
+        jLabel2.setBounds(800, 250, 90, 19);
 
         welcome.setFont(new java.awt.Font("Cambria", 1, 13)); // NOI18N
         jPanel1.add(welcome);
