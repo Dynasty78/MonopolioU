@@ -160,7 +160,7 @@ public class Server extends javax.swing.JFrame implements Runnable{
                         areatexto.append("\n"+"Se ha conectado "+ipremota+" Se le asigna el Jugador numero "+idJugador);
 
                         //Creacion del nuevo jugador
-                        Jugador jugador = new Jugador(1500);
+                        Jugador jugador = new Jugador(100000);
                         jugador.setId(idJugador);
                         jugador.setIp(ipremota);
                         jugador.setPosicion(1);
@@ -179,7 +179,7 @@ public class Server extends javax.swing.JFrame implements Runnable{
                         nuevoJugador.setCodigo(codigo);
                         nuevoJugador.setJugador(jugador);
 
-                        socketEnviar(nuevoJugador,ipremota);
+                        socketEnviar(nuevoJugador,ipremota,9090);
 
                         enviarFichas();
 
@@ -216,7 +216,7 @@ public class Server extends javax.swing.JFrame implements Runnable{
                             Paquete_enviar turno = new Paquete_enviar();
                             turno.setCodigo(2);
 
-                            socketEnviar(turno,ip);
+                            socketEnviar(turno,ip,9090);
                         }
                         else{
                             nuevoTurno = 0;
@@ -226,11 +226,11 @@ public class Server extends javax.swing.JFrame implements Runnable{
                             Paquete_enviar turno = new Paquete_enviar();
                             turno.setCodigo(2);
 
-                            socketEnviar(turno,ip);
+                            socketEnviar(turno,ip,9090);
 
                         }
 
-                    }else if(codigo == 4){
+                    }else if(codigo == 4){//Comprar propiedad
                         int posicionJugador;
                         jugadorActual = mi_paquete.getJugador();
                         posicionJugador = jugadorActual.getPosicion();
@@ -239,13 +239,17 @@ public class Server extends javax.swing.JFrame implements Runnable{
                         if(casillaJugador instanceof Propiedad){
 
                             Propiedad propiedadAcomprar = (Propiedad) casillaJugador;
+                            
                             if(jugadorActual.getDinero()>propiedadAcomprar.getCostoSolar() && !propiedadAcomprar.isDueño()){
 
                                     propiedadAcomprar.setPropietario(jugadorActual);
                                     propiedadAcomprar.setDueño(true);
                                     jugadorActual.getPropiedades().add(propiedadAcomprar);
                                     jugadorActual.setDinero(jugadorActual.getDinero()-propiedadAcomprar.getCostoSolar());
-
+                                   
+                                   Casilla casillaComprada = tablero.buscarCasilla(jugadorActual.getPosicion());
+                                   propiedadAcomprar.setName(casillaComprada.getNombre()); 
+                                   
                                    Paquete_enviar compra = new Paquete_enviar();
                                    compra.setCodigo(4);
                                    compra.setJugador(jugadorActual);
@@ -253,17 +257,15 @@ public class Server extends javax.swing.JFrame implements Runnable{
                                    compra.setTablero(tablero);
 
                                    broadcast(compra);
-                         }
-                            else if(jugadorActual.getDinero()<propiedadAcomprar.getCostoSolar()){
+                            }else if(jugadorActual.getDinero()<propiedadAcomprar.getCostoSolar()){
                                 String ip = jugadorActual.getIp();
                                 String mensaje ="No tienes suficiente dinero";
                                 Paquete_enviar compra = new Paquete_enviar();
                                 compra.setCodigo(9);
                                 compra.setMensaje(mensaje);
                                 compra.setJugador(jugadorActual);
-                                socketEnviar(compra,ip);
-                            }
-                            else if(propiedadAcomprar.isDueño()){
+                                socketEnviar(compra,ip,9090);
+                            }else if(propiedadAcomprar.isDueño()){
                                 Jugador dueño = propiedadAcomprar.getPropietario();
                                 String ip = jugadorActual.getIp();
                                 if(dueño.getId() == jugadorActual.getId()){
@@ -272,29 +274,28 @@ public class Server extends javax.swing.JFrame implements Runnable{
                                     compra.setCodigo(9);
                                     compra.setMensaje(mensaje);
                                     compra.setJugador(jugadorActual);
-                                    socketEnviar(compra,ip);
+                                    socketEnviar(compra,ip,9090);
                                 }else{
                                     String mensaje ="Esta propiedad ya tiene dueño";
                                     Paquete_enviar compra = new Paquete_enviar();
                                     compra.setCodigo(9);
                                     compra.setMensaje(mensaje);
                                     compra.setJugador(jugadorActual);
-                                    socketEnviar(compra,ip);
+                                    socketEnviar(compra,ip,9090);
                                 }  
                             }
-                        }
-                        else{
+                            
+                        }else{
                             String ip = jugadorActual.getIp();
                             String mensaje ="Esta casilla no es una propiedad";
                             Paquete_enviar compra = new Paquete_enviar();
                             compra.setCodigo(9);
                             compra.setMensaje(mensaje);
                             compra.setJugador(jugadorActual);
-                            socketEnviar(compra,ip);
+                            socketEnviar(compra,ip,9090);
                         }
-                    }
-                    else if(codigo == 5){
-
+                    }else if(codigo == 5){
+                     
                        int posicionJugador;
                         jugadorActual = mi_paquete.getJugador();
                         System.out.println(jugadorActual.getDinero());
@@ -302,7 +303,76 @@ public class Server extends javax.swing.JFrame implements Runnable{
                         posicionJugador = jugadorActual.getPosicion();
                         Casilla casillaJugador = tablero.buscarCasilla(posicionJugador);
                         casillaJugador.alLlegar(jugadorActual);
-
+                        
+                    }else if(codigo == 20){//Comprar una casa
+                        /*Validar que tengo todas las propiedades del mismo tipo*/
+                        Jugador player = mi_paquete.getJugador();//Jugador que hace la solicitud de compra
+                        int property_position = mi_paquete.getPropertyPosition();//Correspondiente a la propiedad x (Posicion)
+                        Propiedad property = player.getPropiedades().get(property_position);
+                        int type_of_property = property.getType();
+                        int cantidad_solares = property.getCantidad();
+                        String message = mi_paquete.getMensaje();
+                        
+                        //Busqueda para saber si tengo los demas solares
+                        int cont = 0;
+                        for(int i = 0; i < player.getPropiedades().size(); i++){//Recorrer todas las propiedades del jugador
+                            if(player.getPropiedades().get(i).getType() == type_of_property){
+                                cont++;
+                            }
+                        }
+                        if(cantidad_solares == cont){//El judor tiene todas las propiedades
+                            if(message.equals("home")){
+                                int home_n = property.getNumerocasas();//Numero de casas
+                                //Validar que tiene dinero
+                                if(player.getDinero() > property.getCompraCasa()){
+                                    if(home_n < 3){
+                                        //El jugador puede comprarla
+                                        property.setNumerocasas(property.getNumerocasas()+1);
+                                        int numero_casas = player.getPropiedades().get(property_position).getNumerocasas();
+                                        player.getPropiedades().get(property_position).setNumerocasas(numero_casas + 1);
+                                        switch (home_n) {
+                                            case 0:
+                                                player.setDinero(player.getDinero() - property.getCostoUnacasa());
+                                                break;
+                                            case 1:
+                                                player.setDinero(player.getDinero() - property.getCostoDoscasa());
+                                                break;
+                                            case 2:
+                                                player.setDinero(player.getDinero() - property.getCostoTrescasa());
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                        String player_ip = player.getIp();
+                                        String mensaje = "La casa se ha comprado satisfactoriamente";
+                                        Paquete_enviar cool_package = new Paquete_enviar();
+                                        cool_package.setPropertyPosition(property_position);
+                                        cool_package.setCodigo(20);
+                                        cool_package.setMensaje(mensaje);
+                                        cool_package.setJugador(player);
+                                        socketEnviar(cool_package,player_ip,9000);
+                                    }
+                                }else{//Error: No tienes suficiente dinero
+                                    String player_ip = player.getIp();
+                                    String mensaje = "No tienes suficiente dinero";
+                                    Paquete_enviar error_package = new Paquete_enviar();
+                                    error_package.setCodigo(21);
+                                    error_package.setMensaje(mensaje);
+                                    error_package.setJugador(player);
+                                    socketEnviar(error_package,player_ip,9000);                         
+                                }
+                            }
+                        }else{//Error: Aun no tienes todos los solares
+                            String player_ip = player.getIp();
+                            String mensaje = "Aun no eres dueño de todos los solares del mismo tipo";
+                            Paquete_enviar error_package = new Paquete_enviar();
+                            error_package.setCodigo(21);
+                            error_package.setMensaje(mensaje);
+                            error_package.setJugador(player);
+                            socketEnviar(error_package,player_ip,9000);
+                        }
+                        
+                        
                     }
                     
                     mi_server.close();
@@ -343,9 +413,9 @@ public class Server extends javax.swing.JFrame implements Runnable{
         }
     }
     
-    public void socketEnviar(Paquete_enviar paquete_enviar, String IPServidor){
+    public void socketEnviar(Paquete_enviar paquete_enviar, String IPServidor,int puerto){
         try {
-            Socket socket = new Socket(IPServidor,9090);
+            Socket socket = new Socket(IPServidor,puerto);
             ObjectOutputStream paquete_datos = new ObjectOutputStream(socket.getOutputStream());
             paquete_datos.writeObject(paquete_enviar);
             socket.close();

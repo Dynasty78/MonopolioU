@@ -10,6 +10,7 @@ public class Jugador implements Serializable{
     int id, dinero,posicion;
     boolean turno;
     String nombre;
+    ArrayList<Propiedad> propiedades = new ArrayList(); 
 
     public String getNombre() {
         return nombre;
@@ -17,8 +18,7 @@ public class Jugador implements Serializable{
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
-    }
-    ArrayList<Propiedad> propiedades = new ArrayList();    
+    }   
 
     public int getPosicion() {
         return posicion;

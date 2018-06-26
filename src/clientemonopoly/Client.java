@@ -93,6 +93,7 @@ public class Client extends javax.swing.JFrame implements Runnable{
         propiedad = new javax.swing.JComboBox<>();
         jLabel2 = new javax.swing.JLabel();
         welcome = new javax.swing.JLabel();
+        comprar_casa = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -132,7 +133,7 @@ public class Client extends javax.swing.JFrame implements Runnable{
             }
         });
         jPanel1.add(dados);
-        dados.setBounds(790, 670, 80, 23);
+        dados.setBounds(710, 670, 80, 23);
         jPanel1.add(dado2);
         dado2.setBounds(860, 590, 65, 73);
         jPanel1.add(dado1);
@@ -170,7 +171,7 @@ public class Client extends javax.swing.JFrame implements Runnable{
             }
         });
         jPanel1.add(finalizarTurno);
-        finalizarTurno.setBounds(890, 670, 80, 23);
+        finalizarTurno.setBounds(800, 670, 80, 23);
 
         jLabel1.setBackground(new java.awt.Color(0, 255, 102));
         jPanel1.add(jLabel1);
@@ -187,7 +188,7 @@ public class Client extends javax.swing.JFrame implements Runnable{
             }
         });
         jPanel1.add(compra);
-        compra.setBounds(990, 670, 90, 23);
+        compra.setBounds(890, 670, 90, 23);
 
         propiedad.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { " " }));
         propiedad.addActionListener(new java.awt.event.ActionListener() {
@@ -206,6 +207,15 @@ public class Client extends javax.swing.JFrame implements Runnable{
         welcome.setFont(new java.awt.Font("Cambria", 1, 13)); // NOI18N
         jPanel1.add(welcome);
         welcome.setBounds(710, 30, 110, 30);
+
+        comprar_casa.setText("Comprar casa");
+        comprar_casa.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                comprar_casaMouseClicked(evt);
+            }
+        });
+        jPanel1.add(comprar_casa);
+        comprar_casa.setBounds(990, 670, 110, 23);
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1140, 700));
 
@@ -278,6 +288,24 @@ public class Client extends javax.swing.JFrame implements Runnable{
       
     }//GEN-LAST:event_propiedadActionPerformed
 
+    private void comprar_casaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_comprar_casaMouseClicked
+
+        if(jugadorlocal.isTurno()){ 
+           Paquete_enviar comprar = new Paquete_enviar();
+           int properties_size = jugadorlocal.getPropiedades().size();//Number of properties
+           Comprar c = new Comprar(this,true,jugadorlocal.getPropiedades(),server_ip_address,jugadorlocal);
+           c.setVisible(true);
+           
+           /*comprar.setJugador(jugadorlocal);
+           comprar.setCodigo(4);
+           socketEnviar(comprar);*/
+       }
+      else{
+          new Thread(new MensajeUI(PanelMensaje,"Aun no es tu turno!",4)).start();
+      }
+        
+    }//GEN-LAST:event_comprar_casaMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -318,6 +346,7 @@ public class Client extends javax.swing.JFrame implements Runnable{
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel PanelMensaje;
     private javax.swing.JButton compra;
+    private javax.swing.JButton comprar_casa;
     private javax.swing.JLabel dado1;
     private javax.swing.JLabel dado2;
     private javax.swing.JButton dados;

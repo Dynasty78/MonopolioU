@@ -4,14 +4,34 @@ import java.io.Serializable;
 import java.util.Random;
 import monopolio.Jugador;
 import monopolio.Tablero;
+import monopolio.Casilla;
 
 public class Paquete_enviar implements Serializable {
    Jugador jugador;
    int codigo;
    Random seed1, seed2;
    int cantidadJugadores;
-   
    String mensaje;
+   
+   private int property_position;
+   
+   public void setPropertyPosition(int property_position){
+       this.property_position = property_position;
+   }
+   
+   public int getPropertyPosition(){
+       return property_position;
+   }
+   
+   /*private Casilla buy;
+   
+   public void setCasillaToBuy(Casilla buy){
+       this.buy = buy;
+   }
+   
+   public Casilla getCasillaToBuy(){
+       return buy;
+   }*/
 
     public String getMensaje() {
         return mensaje;
@@ -20,8 +40,6 @@ public class Paquete_enviar implements Serializable {
     public void setMensaje(String mensaje) {
         this.mensaje = mensaje;
     }
-
-    
 
     public int getCantidadJugadores() {
         return cantidadJugadores;

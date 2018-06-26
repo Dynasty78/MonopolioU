@@ -24,9 +24,12 @@ public class Propiedad extends Casilla implements Serializable {
     public int compraHotel;
     public String img;
     public Jugador propietario;
-
     
-    public Propiedad(String nombre, int posicionTablero,int posicionx, int posiciony, boolean dueño, int costoSolar, int numerocasas, int numeroHotel, int hipoteca, int costoAlquiler, int costoUnacasa, int costoDoscasa, int costoTrescasa, int costoHotel, int compraCasa, int compraHotel, Jugador propietario, String img ) {
+    private String name;
+    private int type;//1,2,3,4,5,6,7 or 8
+    private int cantidad_solares;
+    
+    public Propiedad(String nombre, int posicionTablero,int posicionx, int posiciony, boolean dueño, int costoSolar, int numerocasas, int numeroHotel, int hipoteca, int costoAlquiler, int costoUnacasa, int costoDoscasa, int costoTrescasa, int costoHotel, int compraCasa, int compraHotel, Jugador propietario, String img,int type,int cantidad_solares ) {
         super(nombre, posicionTablero,posicionx,posiciony);
         this.dueño = dueño;
         this.costoSolar = costoSolar;
@@ -42,6 +45,28 @@ public class Propiedad extends Casilla implements Serializable {
         this.compraHotel = compraHotel;
         this.propietario = propietario;
         this.img = img;
+        this.type = type;
+        this.cantidad_solares = cantidad_solares;
+    }
+    
+    public int getType(){
+        return this.type;
+    }
+    
+    public void setName(String name){
+        this.name = name;
+    }
+    
+    public int getCantidad(){
+        return this.cantidad_solares;
+    }
+    
+    public void setCantidad(int cantidad_solares){
+        this.cantidad_solares = cantidad_solares;
+    }
+    
+    public String getName(){
+        return this.name;
     }
     
     public String getImg() {
@@ -183,11 +208,10 @@ public class Propiedad extends Casilla implements Serializable {
            notieneDueño.setCodigo(9);
            notieneDueño.setMensaje(mensaje);
            notieneDueño.setJugador(jugador);
-           socketEnviar(notieneDueño,jugador.getIp());
-           
+           socketEnviar(notieneDueño,jugador.getIp());       
        }
        else if(jugador.getId() != propietario.getId()){
-           if(numerocasas ==0){
+           if(numerocasas == 0){
                String pagar = "Has pagado "+costoAlquiler+" del alquiler de "+nombre;
                String ganar = "Has ganado "+costoAlquiler+" del alquiler de "+nombre;
                
